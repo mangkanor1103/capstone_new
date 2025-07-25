@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Face Movement Detection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Face Movement Detection</h1>
+    <video id="video" autoplay></video>
+    <p>Movement: <span id="movement">Waiting...</span></p>
+
+    <script>
+        const socket = io("http://192.168.1.100:5000");  // Server IP
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                document.getElementById('video').srcObject = stream;
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                const video = document.getElementById('video');
+
+                function sendFrame() {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const frameData = canvas.toDataURL('image/jpeg').split(',')[1];
+                    socket.emit('video_frame', { frame: frameData });
+
+                    setTimeout(sendFrame, 100);  // Send every 100ms
+                }
+
+                sendFrame();
+            });
+
+        socket.on('movement_update', data => {
+            document.getElementById('movement').innerText = data.direction;
+        });
+    </script>
+</body>
+</html>
