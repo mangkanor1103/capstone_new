@@ -9,7 +9,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RS Online Exam System - Admin Dashboard</title>
+    <title>FaceTrackED - Admin Dashboard</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,33 +17,70 @@ session_start();
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Font - Inter for modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- SweetAlert2 for modern alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#28a745',     // Green color matching index.php
-                        'primary-dark': '#218838', // Darker green for hover states
-                        'primary-light': '#9be3b0', // Light green for subtle highlights
-                        secondary: '#dc3545',   // Red secondary color
-                        'secondary-dark': '#bd2130', // Darker red for hover states
+                        primary: '#3b82f6',        // Blue
+                        'primary-dark': '#1e40af',
+                        'primary-light': '#93c5fd',
+                        secondary: '#f59e0b',      // Amber
+                        'secondary-dark': '#d97706',
+                        'secondary-light': '#fde68a',
+                        accent: '#10b981',         // Green
+                        'accent-dark': '#047857',
+                        'accent-light': '#a7f3d0',
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'bounce-slow': 'bounce 3s infinite',
+                        'gradient': 'gradient 8s ease infinite',
+                        'blob': 'blob 7s infinite',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-20px)' },
                         },
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
+                        blob: {
+                            '0%, 100%': { 
+                                borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%',
+                                transform: 'rotate(0deg)'
+                            },
+                            '25%': { 
+                                borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%',
+                                transform: 'rotate(90deg)'
+                            },
+                            '50%': { 
+                                borderRadius: '50% 60% 30% 40% / 40% 30% 70% 60%',
+                                transform: 'rotate(180deg)'
+                            },
+                            '75%': { 
+                                borderRadius: '40% 30% 70% 60% / 60% 40% 30% 70%',
+                                transform: 'rotate(270deg)'
+                            },
+                        }
                     }
                 }
             }
@@ -51,9 +88,9 @@ session_start();
     </script>
     
     <style>
-        /* Base styling to match account.php */
+        /* Base styling for modern look */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
         
@@ -64,104 +101,116 @@ session_start();
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: linear-gradient(120deg, #dff8e7 0%, #b6e6c4 100%);
-            overflow: hidden;
+            background: linear-gradient(-45deg, #3b82f6, #1e40af, #10b981, #059669);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            opacity: 0.03;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
         }
         
         .floating-icon {
             position: absolute;
-            opacity: 0.5;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+            opacity: 0.4;
+            filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.3));
             z-index: -1;
             transition: all 0.3s ease;
-            color: #28a745;
+            color: #3b82f6;
         }
         
         .floating-icon:hover {
-            opacity: 0.7;
+            opacity: 0.6;
             transform: scale(1.2);
-        }
-        
-        @keyframes blob {
-            0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-            25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-            50% { border-radius: 50% 60% 30% 40% / 40% 30% 70% 60%; }
-            75% { border-radius: 40% 30% 70% 60% / 60% 40% 30% 70%; }
         }
         
         .blob {
             position: absolute;
-            background: rgba(40, 167, 69, 0.18);
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
             width: 300px;
             height: 300px;
             animation: blob 15s linear infinite alternate;
             z-index: -1;
+            filter: blur(40px);
         }
         
         .form-input {
-            @apply w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300;
-            background-color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            @apply w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
         .form-input:hover {
             @apply border-gray-400;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
         }
         
         .form-input:focus {
             @apply border-primary;
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
             outline: none;
         }
         
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
+            font-weight: 600;
             color: #374151;
             font-size: 0.875rem;
             text-align: left;
         }
         
         .btn-primary {
-            @apply bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+            @apply bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-xl transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
         }
         
         .btn-secondary {
-            @apply bg-secondary hover:bg-secondary-dark text-white font-medium py-2 px-6 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
+            @apply bg-secondary hover:bg-secondary-dark text-white font-semibold py-3 px-6 rounded-xl transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .btn-accent {
+            @apply bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-6 rounded-xl transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent focus:ring-opacity-50;
+            background: linear-gradient(135deg, #10b981, #047857);
         }
         
         .btn-outline {
-            @apply border border-gray-400 text-gray-700 font-medium py-2 px-6 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50;
+            @apply border-2 border-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
         }
         
         .nav-item {
-            @apply relative px-4 py-3 flex items-center text-gray-700 hover:text-primary transition-all duration-300;
+            @apply relative px-6 py-4 flex items-center text-gray-700 hover:text-primary transition-all duration-300 rounded-lg;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            margin: 0 2px;
         }
         
         .nav-item.active {
-            @apply text-primary font-medium;
+            @apply text-white font-semibold;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
         }
         
-        .nav-item.active::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: #28a745;
-            transform: scaleX(0.8);
-            transition: transform 0.3s ease;
-        }
-        
-        .nav-item:hover::after {
-            transform: scaleX(1);
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
         }
         
         .panel-title {
-            @apply text-2xl font-bold text-primary mb-4 pb-2 border-b-2 border-primary;
+            @apply text-3xl font-bold mb-6 pb-3;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border-bottom: 3px solid #3b82f6;
         }
         
         .action-btn {
@@ -170,7 +219,9 @@ session_start();
         
         .action-btn:hover {
             transform: translateY(-2px);
-        }          /* Modal styling */
+        }
+        
+        /* Enhanced Modal styling */
         .modal {
             position: fixed !important;
             top: 0 !important;
@@ -178,7 +229,8 @@ session_start();
             right: 0 !important;
             bottom: 0 !important;
             z-index: 99999 !important;
-            background-color: rgba(0, 0, 0, 0.8) !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
             display: none !important;
             align-items: center !important;
             justify-content: center !important;
@@ -187,18 +239,20 @@ session_start();
         }
         
         .modal-content {
-            background-color: white !important;
-            border-radius: 0.75rem !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.3) !important;
             width: 100% !important;
-            max-width: 28rem !important; /* Reduced from 42rem to make it smaller */
-            max-height: 85vh !important; /* Reduced from 90vh */
+            max-width: 28rem !important;
+            max-height: 85vh !important;
             overflow-y: auto !important;
             transform: scale(0.9) !important;
             transition: all 0.3s ease-in-out !important;
             text-align: left !important;
             position: relative !important;
-            margin: auto !important; /* Center the modal */
+            margin: auto !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
         }
         
         .modal.active {
@@ -226,23 +280,42 @@ session_start();
             box-sizing: border-box;
         }
         
-        /* Additional modal fixes */
         body.modal-open {
             overflow: hidden !important;
         }
         
-        .modal-backdrop {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background: rgba(0, 0, 0, 0.8) !important;
-            z-index: 99998 !important;
+        /* Header glass effect */
+        .header-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
         }
         
-        /* Force modal to center properly - removed this section since we're using flexbox centering */
-
+        /* Table enhancements */
+        .table-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Card enhancements */
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .card-glass:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(59, 130, 246, 0.2);
+        }
     </style>
 </head>
 
@@ -254,19 +327,27 @@ session_start();
         <div class="blob" style="top: 80%; left: 30%;"></div>
         
         <!-- Floating Icons -->
-        <i class="fas fa-graduation-cap floating-icon text-5xl animate-float" style="top: 15%; left: 10%;"></i>
-        <i class="fas fa-book floating-icon text-4xl animate-pulse-slow" style="top: 30%; left: 85%;"></i>
-        <i class="fas fa-laptop floating-icon text-5xl animate-bounce-slow" style="top: 70%; left: 15%;"></i>
-        <i class="fas fa-pencil-alt floating-icon text-4xl animate-float" style="top: 80%; left: 80%; animation-delay: 2s;"></i>
-        <i class="fas fa-users floating-icon text-5xl animate-pulse-slow" style="top: 40%; left: 50%; animation-delay: 1s;"></i>
+        <i class="fas fa-eye floating-icon text-5xl animate-float" style="top: 15%; left: 10%;"></i>
+        <i class="fas fa-shield-alt floating-icon text-4xl animate-pulse-slow" style="top: 30%; left: 85%;"></i>
+        <i class="fas fa-chart-line floating-icon text-5xl animate-bounce-slow" style="top: 70%; left: 15%;"></i>
+        <i class="fas fa-users floating-icon text-4xl animate-float" style="top: 80%; left: 80%; animation-delay: 2s;"></i>
+        <i class="fas fa-graduation-cap floating-icon text-5xl animate-pulse-slow" style="top: 40%; left: 50%; animation-delay: 1s;"></i>
     </div>
 
     <!-- Header -->
-    <header class="fixed w-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg shadow-md z-50 transition-all duration-300">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <img src="image/rslogo.jpg" alt="RS Logo" class="h-12 w-12 rounded-full shadow-md transition-transform duration-300 hover:scale-110">
-                <h1 class="text-xl md:text-2xl font-bold text-primary">RS Online Exam - Admin</h1>
+    <header class="fixed w-full header-glass z-50 transition-all duration-300">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <i class="fas fa-eye text-4xl text-primary"></i>
+                    <div class="absolute -top-1 -right-1 h-3 w-3 bg-accent rounded-full animate-pulse"></div>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">
+                        <span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FaceTrackED</span>
+                    </h1>
+                    <p class="text-sm text-gray-600 font-medium">Admin Dashboard</p>
+                </div>
             </div>
 
             <?php
@@ -277,8 +358,16 @@ session_start();
             } else {
                 $name = $_SESSION['name'];
                 echo '<div class="flex items-center space-x-4">
-                    <span class="text-gray-700 font-medium">Hello, <span class="text-primary font-semibold">'.htmlspecialchars($name).'</span></span>
-                    <a href="logout.php?q=account.php" class="btn-secondary flex items-center space-x-2 text-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-10 w-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                            '.strtoupper(substr($name, 0, 1)).'
+                        </div>
+                        <div class="hidden md:block">
+                            <span class="text-gray-700 font-medium">Welcome back,</span>
+                            <div class="text-primary font-bold">'.htmlspecialchars($name).'</div>
+                        </div>
+                    </div>
+                    <a href="logout.php?q=account.php" class="btn-secondary flex items-center space-x-2 text-sm py-2 px-4">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -289,11 +378,11 @@ session_start();
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="fixed top-20 w-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg shadow-md z-40 transition-all duration-300">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center">
+    <nav class="fixed top-24 w-full glass-effect z-40 transition-all duration-300">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-wrap justify-center lg:justify-between items-center gap-2 py-3">
                 <a class="nav-item <?php if(@$_GET['q']==0) echo 'active'; ?>" href="dash.php?q=0">
-                    <i class="fas fa-home mr-2"></i> Home
+                    <i class="fas fa-home mr-2"></i> Dashboard
                 </a>
                 <a class="nav-item <?php if(@$_GET['q']==1) echo 'active'; ?>" href="dash.php?q=1">
                     <i class="fas fa-users mr-2"></i> Users
@@ -318,13 +407,13 @@ session_start();
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow pt-40 pb-16">
-        <div class="container mx-auto px-4 py-8">
+    <main class="flex-grow pt-48 pb-16">
+        <div class="container mx-auto px-6 py-8">
             <!-- Breadcrumb -->
-            <div class="flex items-center text-sm mb-6 bg-white rounded-lg px-4 py-2 shadow-md">
-                <a href="dash.php?q=0" class="text-primary hover:text-primary-dark transition-colors">Dashboard</a>
-                <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                <span class="text-gray-600">
+            <div class="flex items-center text-sm mb-8 card-glass px-6 py-4">
+                <a href="dash.php?q=0" class="text-primary hover:text-primary-dark transition-colors font-medium">Dashboard</a>
+                <i class="fas fa-chevron-right text-gray-400 mx-3"></i>
+                <span class="text-gray-600 font-medium">
                     <?php 
                         if(@$_GET['q']==0) echo "Exams Management";
                         else if(@$_GET['q']==1) echo "User Management";
@@ -338,8 +427,8 @@ session_start();
                 </span>
             </div>
 
-            <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all duration-500 hover:shadow-2xl mb-10">
-                <div class="p-8 md:p-12 bg-gradient-to-br from-white to-green-50">
+            <div class="max-w-7xl mx-auto card-glass p-8 md:p-12 mb-10">
+                <div class="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-8">
                     
                     <?php if(@$_GET['q']==0) { ?>
                         <h2 class="panel-title">Exam Management</h2>
@@ -348,21 +437,20 @@ session_start();
                         <?php
                         $result = mysqli_query($con,"SELECT * FROM quiz ORDER BY date DESC") or die('Error');
                         if(mysqli_num_rows($result) > 0) {
-                            echo '<div class="overflow-x-auto">
-                            <table class="min-w-full bg-white border-collapse">
+                            echo '<div class="table-glass overflow-hidden">
+                            <table class="min-w-full">
                                 <thead>
-                                    <tr class="bg-gray-50 border-b-2 border-gray-200">
-                                        <th class="px-4 py-3 text-left">S.N.</th>
-                                        <th class="px-4 py-3 text-left">Topic</th>
-                                        <th class="px-4 py-3 text-center">Questions</th>
-                                        <th class="px-4 py-3 text-center">Marks</th>
-                                        <th class="px-4 py-3 text-center">Time</th>
-                                        <th class="px-4 py-3 text-center">Restart</th>
-                                        <th class="px-4 py-3 text-center">Access</th>
-                                        <th class="px-4 py-3 text-center">Actions</th>
+                                    <tr class="bg-gradient-to-r from-primary to-accent text-white">
+                                        <th class="px-6 py-4 text-left font-semibold">S.N.</th>
+                                        <th class="px-6 py-4 text-left font-semibold">Topic</th>
+                                        <th class="px-6 py-4 text-center font-semibold">Questions</th>
+                                        <th class="px-6 py-4 text-center font-semibold">Marks</th>
+                                        <th class="px-6 py-4 text-center font-semibold">Time</th>
+                                        <th class="px-6 py-4 text-center font-semibold">Restart</th>
+                                        <th class="px-6 py-4 text-center font-semibold">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>';
+                                <tbody class="bg-white">';
                             $c=1;
                             while($row = mysqli_fetch_array($result)) {
                                 $title = $row['title'];
@@ -372,32 +460,42 @@ session_start();
                                 $eid = $row['eid'];
                                 $allow_restart = $row['allow_restart'];
                                 
-                                echo '<tr class="border-b border-gray-200 hover:bg-gray-50">
-                                    <td class="px-4 py-4">'.$c++.'</td>
-                                    <td class="px-4 py-4 font-medium">'.$title.'</td>
-                                    <td class="px-4 py-4 text-center">'.$total.'</td>
-                                    <td class="px-4 py-4 text-center">'.$sahi*$total.'</td>
-                                    <td class="px-4 py-4 text-center">'.$time.'&nbsp;min</td>
-                                    <td class="px-4 py-4 text-center">';
+                                echo '<tr class="border-b border-gray-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-green-50 transition-all duration-300">
+                                    <td class="px-6 py-4 font-semibold text-gray-700">'.$c++.'</td>
+                                    <td class="px-6 py-4 font-medium text-gray-800">'.$title.'</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">'.$total.'</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">'.$sahi*$total.'</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">'.$time.' min</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">';
                                 
                                 if($allow_restart == 1) {
-                                    echo '<span class="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">Enabled</span>
-                                        <a href="update.php?action=toggle_restart&eid='.$eid.'&val=0" class="ml-2 text-sm text-blue-500 hover:underline">Disable</a>';
+                                    echo '<div class="flex items-center justify-center space-x-2">
+                                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">Enabled</span>
+                                        <a href="update.php?action=toggle_restart&eid='.$eid.'&val=0" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors">Disable</a>
+                                    </div>';
                                 } else {
-                                    echo '<span class="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs font-semibold">Disabled</span>
-                                        <a href="update.php?action=toggle_restart&eid='.$eid.'&val=1" class="ml-2 text-sm text-blue-500 hover:underline">Enable</a>';
+                                    echo '<div class="flex items-center justify-center space-x-2">
+                                        <span class="px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-semibold">Disabled</span>
+                                        <a href="update.php?action=toggle_restart&eid='.$eid.'&val=1" class="text-sm text-green-500 hover:text-green-700 font-medium transition-colors">Enable</a>
+                                    </div>';
                                 }
                                 
                                 echo '</td>
-                                    <td class="px-4 py-4 text-center">
+                                    <td class="px-6 py-4">
                                         <div class="flex justify-center space-x-2">
-                                            <a href="dash.php?q=0&edit='.$eid.'" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors" title="Edit Exam">
+                                            <a href="dash.php?q=0&edit='.$eid.'" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl" title="Edit Exam">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="dash.php?q=4&step=1&eid='.$eid.'&n='.$total.'" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors" title="Manage Questions">
+                                            <a href="dash.php?q=4&step=1&eid='.$eid.'&n='.$total.'" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl" title="Manage Questions">
                                                 <i class="fas fa-question-circle"></i>
                                             </a>
-                                            <a href="update.php?q=rmquiz&eid='.$eid.'" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors" onclick="return confirm(\'Are you sure you want to remove this exam?\');" title="Remove Exam">
+                                            <a href="update.php?q=rmquiz&eid='.$eid.'" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-3 rounded-xl transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl" onclick="return confirm(\'Are you sure you want to remove this exam?\');" title="Remove Exam">
                                                 <i class="fas fa-trash-alt"></i>
                                             </a>
                                         </div>
@@ -406,13 +504,18 @@ session_start();
                             }
                             echo '</tbody></table></div>';
                         } else {
-                            echo '<div class="text-center p-8 bg-gray-50 rounded-lg">
-                                <i class="fas fa-info-circle text-4xl text-gray-400 mb-3"></i>
-                                <p class="text-gray-500 mb-4">No exams available. Add an exam to get started.</p>
-                                <a href="dash.php?q=4" class="btn-primary inline-flex items-center justify-center space-x-2">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Add New Exam</span>
-                                </a>
+                            echo '<div class="text-center p-12 card-glass">
+                                <div class="max-w-md mx-auto">
+                                    <div class="mb-6">
+                                        <i class="fas fa-clipboard-list text-6xl text-gray-300"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-700 mb-3">No Exams Available</h3>
+                                    <p class="text-gray-500 mb-6">Get started by creating your first exam.</p>
+                                    <a href="dash.php?q=4" class="btn-primary inline-flex items-center justify-center space-x-2">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Create New Exam</span>
+                                    </a>
+                                </div>
                             </div>';
                         }
                         ?>
