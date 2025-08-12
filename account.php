@@ -26,7 +26,7 @@ if (!isset($_SESSION['welcomed'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FaceTrackED - Dashboard</title>
+    <title>FaceTrackED - Advanced Examination System</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -70,11 +70,9 @@ if (!isset($_SESSION['welcomed'])) {
                         },
                         'gradient-x': {
                             '0%, 100%': {
-                                'background-size': '200% 200%',
                                 'background-position': 'left center'
                             },
                             '50%': {
-                                'background-size': '200% 200%',
                                 'background-position': 'right center'
                             },
                         },
@@ -91,6 +89,7 @@ if (!isset($_SESSION['welcomed'])) {
     </script>
     
     <style>
+        /* Base styling */
         body {
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
@@ -136,12 +135,6 @@ if (!isset($_SESSION['welcomed'])) {
         }
         
         .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .hero-card {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -194,34 +187,30 @@ if (!isset($_SESSION['welcomed'])) {
             background: rgba(255, 255, 255, 0.1);
         }
         
-        .btn-start {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
+        .btn-danger {
+            @apply bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
         
-        .btn-start:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        .nav-item {
+            @apply px-6 py-3 text-gray-700 font-medium transition-all duration-300 hover:text-primary hover:bg-white hover:bg-opacity-80 rounded-lg;
+            backdrop-filter: blur(10px);
         }
         
-        .btn-restart {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
+        .nav-item.active {
+            @apply text-primary bg-white bg-opacity-90 shadow-md;
         }
         
-        .btn-restart:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        .header-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .footer-glass {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
                 
         /* Modal styling */
@@ -253,6 +242,10 @@ if (!isset($_SESSION['welcomed'])) {
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
+        .modal-content > div:first-child {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
         .modal.active {
             display: flex !important;
             animation: fadeIn 0.3s ease-out forwards;
@@ -265,56 +258,6 @@ if (!isset($_SESSION['welcomed'])) {
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
-        }
-        
-        .header-glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .nav-glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .footer-glass {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        .footer-glass a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        
-        .footer-glass a:hover {
-            color: #10b981;
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-        }
-        
-        .nav-item {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .nav-item:hover, .nav-item.active {
-            background: rgba(59, 130, 246, 0.3);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
         
         /* Special styling for quiz container */
@@ -334,27 +277,27 @@ if (!isset($_SESSION['welcomed'])) {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            position: relative;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
         }
         
         .camera-section {
             width: 200px;
             height: 200px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
             padding: 10px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             position: absolute;
             bottom: 50px;
             right: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .camera-section img {
@@ -362,23 +305,39 @@ if (!isset($_SESSION['welcomed'])) {
             height: auto;
             border-radius: 10px;
         }
-        
-        .table-glass {
+
+        .exam-table {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .exam-timer {
-            background: rgba(59, 130, 246, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+
+        .exam-table th {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            font-weight: 600;
             padding: 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            color: #1d4ed8;
+            text-align: center;
+        }
+
+        .exam-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .exam-table tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
@@ -415,11 +374,8 @@ if (!isset($_SESSION['welcomed'])) {
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="hero-card rounded-lg px-4 py-2">
-                    <span class="text-white opacity-90 text-sm">Welcome,</span>
-                    <span class="text-white font-semibold ml-1"><?php echo htmlspecialchars($name); ?></span>
-                </div>
-                <a href="logout.php?q=account.php" class="btn-secondary flex items-center space-x-2 text-sm py-2 px-4">
+                <span class="text-white opacity-90">Hello, <span class="text-secondary font-semibold"><?php echo htmlspecialchars($name); ?></span></span>
+                <a href="logout.php?q=account.php" class="btn-danger flex items-center space-x-2 text-sm">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -428,12 +384,12 @@ if (!isset($_SESSION['welcomed'])) {
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="fixed top-20 w-full nav-glass shadow-lg z-40 transition-all duration-300">
-        <div class="container mx-auto px-4 py-3">
+    <nav class="fixed top-20 w-full header-glass shadow-md z-40 transition-all duration-300">
+        <div class="container mx-auto px-4">
             <div class="flex justify-start items-center">
-                <span class="text-white font-semibold text-lg px-6 py-3">
-                    <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
-                </span>
+                <a class="nav-item <?php if(@$_GET['q']==1) echo 'active'; ?>" href="account.php?q=1">
+                    <i class="fas fa-home mr-2"></i> Dashboard
+                </a>
             </div>
         </div>
     </nav>
@@ -443,12 +399,10 @@ if (!isset($_SESSION['welcomed'])) {
         <div class="container mx-auto px-4 py-8">
 
             <?php if (@$_GET['q'] == 1) { ?>
-                <div class="max-w-6xl mx-auto hero-card rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 hover:shadow-3xl">
+                <div class="max-w-4xl mx-auto content-card overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
                     <div class="p-8 md:p-12">
                         <div class="text-center mb-8">
-                            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                                Welcome Back, <?php echo htmlspecialchars($name); ?>!
-                            </h2>
+                            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Welcome, <?php echo htmlspecialchars($name); ?>!</h2>
                             <h3 class="text-xl font-medium text-white opacity-90 mb-6">Available Examinations</h3>
                         </div>
                         
@@ -469,19 +423,19 @@ if (!isset($_SESSION['welcomed'])) {
                         $result = mysqli_query($con, "SELECT * FROM quiz ORDER BY date DESC") or die('Error');
                         
                         if (mysqli_num_rows($result) > 0) {
-                            echo '<div class="table-glass overflow-hidden rounded-xl shadow-xl">
-                            <table class="min-w-full border-collapse">
+                            echo '<div class="overflow-x-auto">
+                            <table class="min-w-full exam-table">
                                 <thead>
-                                    <tr class="bg-gradient-to-r from-primary/20 to-accent/20 border-b border-white/30">
-                                        <th class="px-6 py-4 text-left text-white font-semibold">S.N.</th>
-                                        <th class="px-6 py-4 text-left text-white font-semibold">Topic</th>
-                                        <th class="px-6 py-4 text-center text-white font-semibold">Questions</th>
-                                        <th class="px-6 py-4 text-center text-white font-semibold">Marks</th>
-                                        <th class="px-6 py-4 text-center text-white font-semibold">Time</th>
-                                        <th class="px-6 py-4 text-center text-white font-semibold">Actions</th>
+                                    <tr>
+                                        <th class="py-3 px-4">S.N.</th>
+                                        <th class="py-3 px-4">Exam Title</th>
+                                        <th class="py-3 px-4">Questions</th>
+                                        <th class="py-3 px-4">Marks</th>
+                                        <th class="py-3 px-4">Time Limit</th>
+                                        <th class="py-3 px-4">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody style="background: rgba(255, 255, 255, 0.95);">';
+                                <tbody>';
                             
                             $c = 1;
                             $available_exams = 0; // Counter for available exams
@@ -521,42 +475,42 @@ if (!isset($_SESSION['welcomed'])) {
                                     }
                                     
                                     if ($rowcount == 0) {
-                                        echo '<tr class="border-b border-gray-200 hover:bg-blue-50 transition-all duration-300">
-                                            <td class="px-6 py-4 text-gray-800 font-semibold">' . $c++ . '</td>
-                                            <td class="px-6 py-4 font-semibold text-gray-800">' . $title . '</td>
-                                            <td class="px-6 py-4 text-center text-gray-800 font-medium">' . $total . '</td>
-                                            <td class="px-6 py-4 text-center text-gray-800 font-medium">' . $sahi * $total . '</td>
-                                            <td class="px-6 py-4 text-center text-gray-800 font-medium">' . $time . ' min</td>
-                                            <td class="px-6 py-4 text-center">
+                                        echo '<tr class="border-b border-gray-200 hover:bg-gray-50">
+                                            <td class="px-4 py-4">' . $c++ . '</td>
+                                            <td class="px-4 py-4 font-medium">' . $title . '</td>
+                                            <td class="px-4 py-4 text-center">' . $total . '</td>
+                                            <td class="px-4 py-4 text-center">' . $sahi * $total . '</td>
+                                            <td class="px-4 py-4 text-center">' . $time . ' min</td>
+                                            <td class="px-4 py-4 text-center">
                                                 <a href="account.php?q=quiz&step=2&eid=' . $eid . '&n=1&t=' . $total . '" 
-                                                   class="btn-start inline-flex items-center justify-center space-x-2 py-2 px-4 rounded-lg">
+                                                   class="btn-register inline-flex items-center justify-center space-x-1 py-1 px-4 rounded-lg">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Exam</span>
+                                                    <span>Start</span>
                                                 </a>
                                             </td>
                                         </tr>';
                                     } else {
-                                        echo '<tr class="border-b border-gray-200 hover:bg-blue-50 transition-all duration-300">
-                                            <td class="px-6 py-4 text-gray-800 font-semibold">' . $c++ . '</td>
-                                            <td class="px-6 py-4 font-semibold text-gray-800">' . $title . ' <i class="fas fa-check-circle text-accent ml-2" title="This exam has been completed"></i></td>
-                                            <td class="px-6 py-4 text-center text-gray-800 font-medium">' . $total . '</td>
-                                            <td class="px-6 py-4 text-center text-gray-800 font-medium">' . $sahi * $total . '</td>
-                                            <td class="px-6 py-4 text-center text-gray-800 font-medium">' . $time . ' min</td>
-                                            <td class="px-6 py-4 text-center">';
+                                        echo '<tr class="border-b border-gray-200 hover:bg-gray-50 text-primary">
+                                            <td class="px-4 py-4">' . $c++ . '</td>
+                                            <td class="px-4 py-4 font-medium">' . $title . ' <i class="fas fa-check-circle" title="This exam has been already solved by you"></i></td>
+                                            <td class="px-4 py-4 text-center">' . $total . '</td>
+                                            <td class="px-4 py-4 text-center">' . $sahi * $total . '</td>
+                                            <td class="px-4 py-4 text-center">' . $time . ' min</td>
+                                            <td class="px-4 py-4 text-center">';
                                             
                                         if ($restart_allowed) {
                                             echo '<a href="update.php?q=quizre&step=25&eid=' . $eid . '&n=1&t=' . $total . '" 
-                                                   class="btn-restart inline-flex items-center justify-center space-x-2 py-2 px-4 rounded-lg">
+                                                   class="btn-register inline-flex items-center justify-center space-x-1 py-1 px-4 rounded-lg">
                                                     <i class="fas fa-redo-alt"></i>
                                                     <span>Restart</span>
                                                   </a>';
                                         } else {
                                             echo '<button disabled 
-                                                   class="opacity-50 cursor-not-allowed bg-gray-600 text-white inline-flex items-center justify-center space-x-2 py-2 px-4 rounded-lg">
+                                                   class="opacity-50 cursor-not-allowed bg-gray-400 text-white inline-flex items-center justify-center space-x-1 py-1 px-4 rounded-lg">
                                                     <i class="fas fa-lock"></i>
-                                                    <span>Locked</span>
+                                                    <span>Restart</span>
                                                   </button>
-                                                  <span class="block text-xs text-gray-600 mt-1 font-medium">Contact admin</span>';
+                                                  <span class="block text-xs text-gray-500 mt-1">Contact admin to enable</span>';
                                         }
                                         
                                         echo '</td>
@@ -569,18 +523,17 @@ if (!isset($_SESSION['welcomed'])) {
                             
                             // If no exams are available for this user
                             if ($available_exams == 0) {
-                                echo '<div class="text-center p-8 hero-card rounded-xl border border-yellow-400/30 mt-6">
-                                    <i class="fas fa-lock text-5xl text-yellow-400 mb-4"></i>
-                                    <h3 class="text-xl font-bold text-white mb-2">No Examinations Available</h3>
-                                    <p class="text-white/80 mb-2">Your organization: <span class="font-semibold text-yellow-400">' . htmlspecialchars($user_college) . '</span></p>
-                                    <p class="text-white/70 text-sm">Contact your administrator if you believe this is an error.</p>
+                                echo '<div class="text-center p-8 bg-yellow-50 rounded-lg border border-yellow-200 mt-4">
+                                    <i class="fas fa-lock text-4xl text-yellow-500 mb-3"></i>
+                                    <p class="text-yellow-700 font-medium mb-2">No exams available for your section</p>
+                                    <p class="text-yellow-600 text-sm">Your section: <span class="font-semibold">' . htmlspecialchars($user_college) . '</span></p>
+                                    <p class="text-yellow-600 text-sm mt-1">Contact your administrator if you think this is an error.</p>
                                 </div>';
                             }
                         } else {
-                            echo '<div class="text-center p-8 hero-card rounded-xl">
-                                <i class="fas fa-info-circle text-5xl text-blue-400 mb-4"></i>
-                                <h3 class="text-xl font-bold text-white mb-2">No Examinations</h3>
-                                <p class="text-white/80">No examinations are currently available in the system.</p>
+                            echo '<div class="text-center p-8 bg-gray-50 rounded-lg">
+                                <i class="fas fa-info-circle text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-500">No exams are currently available.</p>
                             </div>';
                         }
                         ?>
@@ -594,93 +547,56 @@ if (!isset($_SESSION['welcomed'])) {
                 $total = @$_GET['t'];
                 $q = mysqli_query($con, "SELECT * FROM questions WHERE eid='$eid' ORDER BY RAND()");
             ?>
-                <div class="flex justify-center items-center min-h-[calc(100vh-180px)] py-4">
-                    <div class="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-                        <!-- Main Quiz Content -->
-                        <div class="lg:col-span-3 hero-card rounded-2xl shadow-2xl overflow-hidden">
-                            <div class="p-6">
-                                <!-- Timer and Question Header -->
-                                <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
-                                    <div id="exam-timer" class="exam-timer text-lg font-bold">
-                                        <!-- Timer will be inserted here by JavaScript -->
-                                    </div>
-                                    <h2 class="text-xl font-bold text-gray-800">
-                                        Question <?php echo $sn; ?> of <?php echo $total; ?>
-                                    </h2>
+                <div class="max-w-4xl mx-auto content-card overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
+                    <div class="quiz-container">
+                        <div class="quiz-section">
+                            <div class="text-center mb-6">
+                                <h2 class="text-3xl font-bold text-primary mb-2">Question <?php echo $sn; ?> of <?php echo $total; ?></h2>
+                                <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                                    <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: <?php echo ($sn / $total) * 100; ?>%"></div>
                                 </div>
-                                
-                                <?php
-                                $row = mysqli_fetch_array($q);
-                                $qns = $row['qns'];
-                                $qid = $row['qid'];
-                                ?>
-                                
-                                <!-- Question -->
-                                <div class="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-xl mb-6 border border-blue-200 text-center">
-                                    <p class="text-lg font-medium text-gray-800 leading-relaxed"><?php echo $qns; ?></p>
-                                </div>
-                                
-                                <!-- Options Form -->
-                                <form id="quiz-form" action="update.php?q=quiz&step=2&eid=<?php echo $eid; ?>&n=<?php echo $sn; ?>&t=<?php echo $total; ?>&qid=<?php echo $qid; ?>" method="POST" class="space-y-3">
-                                    <?php
-                                    $q = mysqli_query($con, "SELECT * FROM options WHERE qid='$qid' ORDER BY RAND()");
-                                    $optionLabels = ['A', 'B', 'C', 'D']; 
-                                    $index = 0;
-                                    
-                                    while ($row = mysqli_fetch_array($q)) {
-                                        $option = $row['option'];
-                                        $optionid = $row['optionid'];
-                                        ?>
-                                        
-                                        <label class="flex items-center p-3 bg-white/90 backdrop-blur-lg rounded-lg hover:bg-white/95 cursor-pointer transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md">
-                                            <input type="radio" name="ans" value="<?php echo $optionid; ?>" class="h-4 w-4 text-primary mr-3">
-                                            <span class="inline-flex items-center justify-center w-7 h-7 bg-primary text-white rounded-full font-semibold mr-3 text-sm">
-                                                <?php echo $optionLabels[$index++]; ?>
-                                            </span>
-                                            <span class="text-gray-800 font-medium flex-1"><?php echo $option; ?></span>
-                                        </label>
-                                        
-                                    <?php } ?>
-                                </form>
                             </div>
-                        </div>
-                        
-                        <!-- Camera Section -->
-                        <div class="lg:col-span-1">
-                            <div class="bg-white/95 backdrop-filter backdrop-blur-20 p-4 rounded-xl shadow-xl border border-gray-200 sticky top-44">
-                                <div class="text-center">
-                                    <div class="mb-3">
-                                        <i class="fas fa-eye text-primary text-xl"></i>
-                                        <h3 class="text-sm font-semibold text-gray-700 mt-1">Face Monitoring</h3>
-                                    </div>
-                                    <img src="http://127.0.0.1:5000/video_feed" alt="Face Monitoring" class="w-full h-32 object-cover rounded-lg border border-primary/30 mb-2">
-                                    <p class="text-xs text-gray-600 font-medium">Monitoring Active</p>
-                                    <div class="mt-3 pt-3 border-t border-gray-200">
-                                        <div class="flex items-center justify-center space-x-1 mb-4">
-                                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                            <span class="text-xs text-gray-600">Live</span>
-                                        </div>
-                                        
-                                        <!-- Progress Section -->
-                                        <div class="mb-4">
-                                            <div class="flex items-center justify-center space-x-2 mb-2">
-                                                <span class="text-gray-700 font-semibold text-sm">Progress:</span>
-                                                <span class="text-gray-700 font-bold text-sm"><?php echo $sn; ?>/<?php echo $total; ?></span>
-                                            </div>
-                                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                                <div class="bg-gradient-to-r from-primary to-accent h-3 rounded-full transition-all duration-300" 
-                                                     style="width: <?php echo ($sn / $total) * 100; ?>%"></div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Submit Button -->
-                                        <button type="submit" form="quiz-form" class="w-full btn-primary inline-flex items-center justify-center space-x-2 px-4 py-3 text-sm">
-                                            <i class="fas fa-paper-plane"></i>
-                                            <span>Submit Answer</span>
-                                            <i class="fas fa-arrow-right"></i>
-                                        </button>
-                                    </div>
+                            
+                            <?php
+                            $row = mysqli_fetch_array($q);
+                            $qns = $row['qns'];
+                            $qid = $row['qid'];
+                            ?>
+                            
+                            <p class="text-lg mb-6"><?php echo $qns; ?></p>
+                            
+                            <form action="update.php?q=quiz&step=2&eid=<?php echo $eid; ?>&n=<?php echo $sn; ?>&t=<?php echo $total; ?>&qid=<?php echo $qid; ?>" method="POST" class="space-y-4">
+                                <?php
+                                $q = mysqli_query($con, "SELECT * FROM options WHERE qid='$qid' ORDER BY RAND()");
+                                $optionLabels = ['A', 'B', 'C', 'D']; 
+                                $index = 0;
+                                
+                                while ($row = mysqli_fetch_array($q)) {
+                                    $option = $row['option'];
+                                    $optionid = $row['optionid'];
+                                    ?>
+                                    
+                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="radio" name="ans" value="<?php echo $optionid; ?>" class="h-5 w-5 text-primary">
+                                        <span class="ml-3 text-gray-700">
+                                            <span class="font-medium text-primary mr-2"><?php echo $optionLabels[$index++]; ?>.</span>
+                                            <?php echo $option; ?>
+                                        </span>
+                                    </label>
+                                    
+                                <?php } ?>
+                                
+                                <div class="pt-6">
+                                    <button type="submit" class="btn-primary inline-flex items-center justify-center space-x-2">
+                                        <i class="fas fa-paper-plane"></i>
+                                        <span>Submit Answer</span>
+                                    </button>
                                 </div>
+                            </form>
+                            
+                            <!-- Camera Section -->
+                            <div class="camera-section">
+                                <img src="http://127.0.0.1:5000/video_feed" alt="Video Feed" class="rounded-lg">
                             </div>
                         </div>
                     </div>
@@ -691,65 +607,45 @@ if (!isset($_SESSION['welcomed'])) {
                 $eid = @$_GET['eid'];
                 $q = mysqli_query($con, "SELECT * FROM history WHERE eid='$eid' AND email='$email' ") or die('Error157');
             ?>
-                <div class="flex justify-center items-center min-h-[calc(100vh-180px)] py-4">
-                    <div class="w-full max-w-4xl mx-auto hero-card rounded-2xl shadow-2xl overflow-hidden">
-                        <div class="p-6">
-                            <div class="text-center mb-6">
-                                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-accent to-primary rounded-full mb-3">
-                                    <i class="fas fa-chart-bar text-2xl text-white"></i>
-                                </div>
-                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Examination Results</h2>
-                                <p class="text-gray-600">Your performance summary</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="max-w-4xl mx-auto content-card overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
+                    <div class="p-8 md:p-12">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Exam Results</h2>
+                            <p class="text-white opacity-90">Your performance summary</p>
+                        </div>
+                        <div class="bg-white bg-opacity-95 backdrop-blur-20 p-6 rounded-xl shadow-md">
+                            <table class="min-w-full exam-table">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3">Metric</th>
+                                        <th class="px-4 py-3">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                 <?php
                                 while ($row = mysqli_fetch_array($q)) {
                                     $r = $row['sahi']; // Right answers
                                     $qa = $row['level']; // Total questions
-                                    $percentage = ($r / $qa) * 100;
                                     
                                     // Update the rank field with the right answers count
                                     mysqli_query($con, "UPDATE history SET score='$r' WHERE eid='$eid' AND email='$email'") or die('Error updating score');
                                 ?>
-                                    <!-- Correct Answers Card -->
-                                    <div class="bg-white/90 backdrop-blur-lg rounded-xl p-4 text-center shadow-lg border border-gray-200">
-                                        <div class="inline-flex items-center justify-center w-12 h-12 bg-accent rounded-full mb-3">
-                                            <i class="fas fa-check text-white text-lg"></i>
-                                        </div>
-                                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Correct Answers</h3>
-                                        <p class="text-2xl font-bold text-gray-800"><?php echo $r; ?></p>
-                                    </div>
-                                    
-                                    <!-- Total Questions Card -->
-                                    <div class="bg-white/90 backdrop-blur-lg rounded-xl p-4 text-center shadow-lg border border-gray-200">
-                                        <div class="inline-flex items-center justify-center w-12 h-12 bg-primary rounded-full mb-3">
-                                            <i class="fas fa-list text-white text-lg"></i>
-                                        </div>
-                                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Total Questions</h3>
-                                        <p class="text-2xl font-bold text-gray-800"><?php echo $qa; ?></p>
-                                    </div>
-                                    
-                                    <!-- Score Percentage Card -->
-                                    <div class="bg-white/90 backdrop-blur-lg rounded-xl p-4 text-center shadow-lg border border-gray-200">
-                                        <div class="inline-flex items-center justify-center w-12 h-12 bg-secondary rounded-full mb-3">
-                                            <i class="fas fa-percent text-white text-lg"></i>
-                                        </div>
-                                        <h3 class="text-sm font-semibold text-gray-700 mb-1">Score Percentage</h3>
-                                        <p class="text-2xl font-bold text-gray-800"><?php echo number_format($percentage, 1); ?>%</p>
-                                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                            <div class="bg-gradient-to-r from-accent to-primary h-2 rounded-full transition-all duration-300" 
-                                                 style="width: <?php echo $percentage; ?>%"></div>
-                                        </div>
-                                    </div>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="px-4 py-4 font-medium text-primary">Right Answers (Score)</td>
+                                        <td class="px-4 py-4 text-center text-green-600 font-bold"><?php echo $r; ?></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="px-4 py-4 font-medium text-primary">Total Questions</td>
+                                        <td class="px-4 py-4 text-center text-blue-600 font-bold"><?php echo $qa; ?></td>
+                                    </tr>
                                 <?php } ?>
-                            </div>
+                                </tbody>
+                            </table>
                             
-                            <div class="text-center">
-                                <a href="account.php?q=1" class="btn-primary inline-flex items-center justify-center space-x-2 px-6 py-3">
+                            <div class="mt-8 text-center">
+                                <a href="account.php?q=1" class="btn-primary inline-flex items-center justify-center space-x-2">
                                     <i class="fas fa-home"></i>
-                                    <span>Back to Dashboard</span>
-                                    <i class="fas fa-arrow-right"></i>
+                                    <span>Back to Home</span>
                                 </a>
                             </div>
                         </div>
@@ -761,15 +657,15 @@ if (!isset($_SESSION['welcomed'])) {
     </main>
 
 <!-- Footer -->
-    <footer class="footer-glass py-8 mt-auto">
+    <footer class="footer-glass text-white py-8 mt-auto">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
                 <div class="group">
-                    <a href="#" id="developersBtn" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-accent transition-all duration-300">
+                    <a href="#" id="developersBtn" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-primary transition-all duration-300">
                         <i class="fas fa-code text-2xl"></i>
                         <div>
-                            <div class="font-medium">Development Team</div>
-                            <div class="text-sm opacity-70">Meet the Creators</div>
+                            <span class="font-medium">Developers</span>
+                            <p class="text-sm opacity-80">Meet our team</p>
                         </div>
                     </a>
                 </div>
@@ -777,17 +673,17 @@ if (!isset($_SESSION['welcomed'])) {
                     <a href="feedback.php" target="_blank" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-secondary transition-all duration-300">
                         <i class="fas fa-comments text-2xl"></i>
                         <div>
-                            <div class="font-medium">Feedback</div>
-                            <div class="text-sm opacity-70">Share Your Experience</div>
+                            <span class="font-medium">Feedback</span>
+                            <p class="text-sm opacity-80">Share your thoughts</p>
                         </div>
                     </a>
                 </div>
                 <div class="group">
-                    <a href="#" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-primary transition-all duration-300">
+                    <a href="#" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-accent transition-all duration-300">
                         <i class="fas fa-question-circle text-2xl"></i>
                         <div>
-                            <div class="font-medium">Help & Support</div>
-                            <div class="text-sm opacity-70">Get Assistance</div>
+                            <span class="font-medium">Help & Support</span>
+                            <p class="text-sm opacity-80">Get assistance</p>
                         </div>
                     </a>
                 </div>
@@ -795,14 +691,14 @@ if (!isset($_SESSION['welcomed'])) {
                     <div class="inline-flex justify-center md:justify-start items-center space-x-2">
                         <i class="fas fa-eye text-2xl text-primary"></i>
                         <div>
-                            <div class="font-medium">FaceTrackED</div>
-                            <div class="text-sm opacity-70">Secure. Smart. Reliable.</div>
+                            <span class="font-medium">FaceTrackED</span>
+                            <p class="text-sm opacity-80">Secure Examinations</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="text-center mt-8 pt-8 border-t border-white/20 text-sm opacity-70">
-                &copy; <?php echo date('Y'); ?> FaceTrackED | Advanced Examination System | All Rights Reserved
+                &copy; 2025 FaceTrackED | Advanced Examination System | All Rights Reserved
             </div>
         </div>
     </footer>
@@ -820,25 +716,25 @@ if (!isset($_SESSION['welcomed'])) {
                         <img src="image/CAM00121.jpg" class="h-32 w-32 object-cover rounded-full shadow-xl border-4 border-primary transition-transform duration-300 hover:scale-105" alt="Lead Developer">
                     </div>
                     <div class="text-center md:text-left">
-                        <h4 class="text-2xl font-bold text-primary mb-2">Kian A. Rodriguez</h4>
+                        <h4 class="text-2xl font-bold text-primary mb-2">Kian A. Rodrigez</h4>
                         <p class="text-gray-600 font-medium mb-3">Lead Developer & System Architect</p>
                         <div class="space-y-2">
                             <p class="flex items-center justify-center md:justify-start text-gray-600">
-                                <i class="fas fa-phone-alt mr-3 text-secondary"></i>
-                                +63 966 717 240
+                                <i class="fas fa-graduation-cap mr-2 text-primary"></i>
+                                Computer Science Student
                             </p>
                             <p class="flex items-center justify-center md:justify-start text-gray-600">
-                                <i class="fas fa-envelope mr-3 text-accent"></i>
-                                kianr664@gmail.com
+                                <i class="fas fa-code mr-2 text-accent"></i>
+                                Full-Stack Developer
                             </p>
                             <p class="flex items-center justify-center md:justify-start text-gray-600">
-                                <i class="fas fa-university mr-3 text-primary"></i>
-                                MinSU - Computer Science
+                                <i class="fas fa-brain mr-2 text-secondary"></i>
+                                AI & Machine Learning Enthusiast
                             </p>
                         </div>
                         <div class="mt-4 pt-4 border-t border-gray-200">
                             <p class="text-sm text-gray-500 italic">
-                                "Building the future of secure examination systems with AI-powered face tracking technology"
+                                "Passionate about creating secure and innovative examination solutions."
                             </p>
                         </div>
                     </div>
@@ -875,63 +771,47 @@ document.addEventListener('DOMContentLoaded', function() {
         $warning_icon = "success";
         
         if ($warning_count >= 40) {
-            $warning_message = "⚠️ CRITICAL: You have $warning_count violations. Account suspension imminent!";
+            $warning_message = "Critical Violation Level: You have received $warning_count warnings. Your account is at risk of permanent suspension.";
             $warning_icon = "error";
         } elseif ($warning_count >= 30) {
-            $warning_message = "🚨 SEVERE: You have $warning_count violations. Final warning before suspension.";
+            $warning_message = "Severe Violation Level: You have received $warning_count warnings. Further violations may result in account suspension.";
             $warning_icon = "warning";
         } elseif ($warning_count >= 20) {
-            $warning_message = "⚠️ MAJOR: You have $warning_count violations. Please review examination guidelines.";
+            $warning_message = "Major Violation Level: You have received $warning_count warnings. Please review exam guidelines.";
             $warning_icon = "warning";
         } elseif ($warning_count >= 10) {
-            $warning_message = "⚡ MODERATE: You have $warning_count violations. Be extra careful during exams.";
+            $warning_message = "Moderate Violation Level: You have received $warning_count warnings. Be careful during exams.";
             $warning_icon = "info";
         } elseif ($warning_count > 0) {
-            $warning_message = "ℹ️ MINOR: You have $warning_count violations. Please follow exam protocols.";
+            $warning_message = "Minor Violation Level: You have received $warning_count warnings. Please follow exam rules carefully.";
             $warning_icon = "info";
         }
     ?>
         Swal.fire({
-            title: 'Welcome to FaceTrackED!',
-            html: '<div class="text-center">' +
-                  '<div class="mb-4">' +
-                  '<i class="fas fa-eye text-4xl text-blue-500 mb-2"></i>' +
-                  '</div>' +
-                  '<p class="text-lg font-medium mb-2">Hello, <span class="text-blue-600"><?php echo htmlspecialchars($name); ?></span>!</p>' +
-                  '<p class="text-gray-600 mb-4">You have successfully logged into the advanced examination system.</p>' + 
+            title: 'Welcome, <?php echo htmlspecialchars($name); ?>!',
+            html: 'You have successfully logged in to the RS Online Exam System.' + 
                   <?php if ($warning_count > 0) { ?> 
-                  '<div class="mt-4 p-4 rounded-lg ' + 
-                  '<?php echo ($warning_count >= 30) ? "bg-red-50 border-2 border-red-200" : 
-                          (($warning_count >= 20) ? "bg-orange-50 border-2 border-orange-200" : 
-                          (($warning_count >= 10) ? "bg-yellow-50 border-2 border-yellow-200" : 
-                          "bg-blue-50 border-2 border-blue-200")) ?>">' + 
-                  '<div class="flex items-center justify-center mb-2">' +
+                  '<br><br><div class="mt-3 p-3 rounded-lg ' + 
+                  '<?php echo ($warning_count >= 30) ? "bg-red-50 border border-red-200" : 
+                          (($warning_count >= 20) ? "bg-orange-50 border border-orange-200" : 
+                          (($warning_count >= 10) ? "bg-yellow-50 border border-yellow-200" : 
+                          "bg-blue-50 border border-blue-200")) ?>">' + 
                   '<i class="fas <?php echo ($warning_count >= 30) ? "fa-exclamation-triangle text-red-500" : 
                                 (($warning_count >= 20) ? "fa-exclamation-circle text-orange-500" : 
                                 (($warning_count >= 10) ? "fa-exclamation text-yellow-600" : 
-                                "fa-info-circle text-blue-500")) ?> text-2xl mr-2"></i>' +
-                  '</div>' +
-                  '<p class="font-bold text-center"><?php echo $warning_message; ?></p>' +
-                  '</div>'
+                                "fa-info-circle text-blue-500")) ?> mr-2"></i>' +
+                  '<span class="font-medium"><?php echo $warning_message; ?></span></div>'
                   <?php } else { ?>
-                  '<div class="mt-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">' +
-                  '<div class="flex items-center justify-center mb-2">' +
-                  '<i class="fas fa-shield-check text-green-500 text-2xl mr-2"></i>' +
-                  '</div>' +
-                  '<p class="font-medium text-green-700">✅ Clean Record - No violations detected</p>' +
-                  '</div>'
-                  <?php } ?> +
-                  '</div>',
+                  ''
+                  <?php } ?>,
             icon: '<?php echo ($warning_count >= 30) ? "warning" : "success"; ?>',
-            timer: <?php echo ($warning_count > 0) ? "8000" : "4000"; ?>,
+            timer: <?php echo ($warning_count > 0) ? "6000" : "3000"; ?>,
             timerProgressBar: true,
-            showConfirmButton: true,
-            confirmButtonText: 'Continue',
+            showConfirmButton: false,
             background: '#fff',
-            iconColor: '<?php echo ($warning_count >= 30) ? "#dc3545" : "#3b82f6"; ?>',
+            iconColor: '<?php echo ($warning_count >= 30) ? "#dc3545" : "#28a745"; ?>',
             customClass: {
-                popup: 'rounded-xl shadow-2xl border-2 <?php echo ($warning_count >= 30) ? "border-red-100" : "border-blue-100"; ?>',
-                confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors'
+                popup: 'rounded-xl shadow-xl border <?php echo ($warning_count >= 30) ? "border-red-100" : "border-green-100"; ?>'
             }
         });
         <?php 
