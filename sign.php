@@ -45,12 +45,12 @@ if (!empty($photoData)) {
 
         move_uploaded_file($photoTmp, $photoPath);
     } else {
-        header("location:index.php?q7=Invalid photo format.");
+        header("location:index.php?error=invalid_photo&message=" . urlencode("Invalid photo format. Please use JPG, JPEG, PNG, or GIF."));
         ob_end_flush();
         exit();
     }
 } else {
-    header("location:index.php?q7=No photo uploaded or captured.");
+    header("location:index.php?error=no_photo&message=" . urlencode("Please capture or upload your profile photo."));
     ob_end_flush();
     exit();
 }
@@ -62,7 +62,7 @@ $checkQuery->execute();
 $checkResult = $checkQuery->get_result();
 
 if ($checkResult->num_rows > 0) {
-    header("location:index.php?q7=Email Already Registered!!!");
+    header("location:index.php?error=email_exists&message=" . urlencode("This email address is already registered. Please use a different email or try logging in."));
     ob_end_flush();
     exit();
 }
@@ -74,9 +74,9 @@ $insertQuery->bind_param("sssssss", $name, $gender, $college, $email, $mob, $has
 if ($insertQuery->execute()) {
     $_SESSION["email"] = $email;
     $_SESSION["name"] = $name;
-    header("location:account.php?q=1");
+    header("location:account.php?q=1&success=registered");
 } else {
-    header("location:index.php?q7=Registration Failed. Try Again!");
+    header("location:index.php?error=registration_failed&message=" . urlencode("Registration failed. Please try again or contact support."));
 }
 
 ob_end_flush();

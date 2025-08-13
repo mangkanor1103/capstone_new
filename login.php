@@ -30,11 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             // Invalid password
-            echo "<script>alert('Invalid email or password. Please try again.'); window.location.href='index.php';</script>";
+            header("location: index.php?error=invalid_credentials");
+            exit();
         }
     } else {
         // Email not found or user disabled
-        echo "<script>alert('Invalid email or password. Please try again.'); window.location.href='index.php';</script>";
+        header("location: index.php?error=user_not_found");
+        exit();
     }
 
     $stmt->close();

@@ -262,48 +262,123 @@ if (!isset($_SESSION['welcomed'])) {
         
         /* Special styling for quiz container */
         .quiz-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 300px;
             gap: 20px;
             padding: 20px;
             width: 100%;
-            max-width: 800px; 
+            max-width: 1200px;
+            height: calc(100vh - 180px);
             position: relative;
+        }
+        
+        /* Hide footer during quiz mode */
+        .quiz-mode footer {
+            display: none !important;
+        }
+        
+        /* Adjust main content padding during quiz mode */
+        .quiz-mode main {
+            padding-bottom: 20px !important;
         }
         
         .quiz-section {
-            width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            padding: 20px;
+            padding: 15px;
             border-radius: 16px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .camera-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
         }
         
         .camera-section {
-            width: 200px;
-            height: 200px;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
-            padding: 10px;
+            padding: 15px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            position: absolute;
-            bottom: 50px;
-            right: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 250px;
         }
         
         .camera-section img {
             width: 100%;
-            height: auto;
+            height: 200px;
+            object-fit: cover;
             border-radius: 10px;
+        }
+        
+        .timer-section {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .quiz-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .question-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .submit-section {
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin-top: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .quiz-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto;
+                height: auto;
+            }
+            
+            .camera-sidebar {
+                flex-direction: row;
+                height: auto;
+            }
+            
+            .camera-section {
+                height: 180px;
+                flex: 1;
+            }
+            
+            .timer-section {
+                flex: 1;
+                height: 180px;
+            }
         }
 
         .exam-table {
@@ -342,7 +417,7 @@ if (!isset($_SESSION['welcomed'])) {
     </style>
 </head>
 
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col<?php if (@$_GET['q'] == 'quiz' && @$_GET['step'] == 2) echo ' quiz-mode'; ?>">
     <!-- Animated Background -->
     <div class="animated-bg">
         <div class="blob" style="top: 10%; left: 10%;"></div>
@@ -547,56 +622,84 @@ if (!isset($_SESSION['welcomed'])) {
                 $total = @$_GET['t'];
                 $q = mysqli_query($con, "SELECT * FROM questions WHERE eid='$eid' ORDER BY RAND()");
             ?>
-                <div class="max-w-4xl mx-auto content-card overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
+                <div class="max-w-7xl mx-auto">
                     <div class="quiz-container">
+                        <!-- Main Quiz Section -->
                         <div class="quiz-section">
-                            <div class="text-center mb-6">
-                                <h2 class="text-3xl font-bold text-primary mb-2">Question <?php echo $sn; ?> of <?php echo $total; ?></h2>
-                                <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
-                                    <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: <?php echo ($sn / $total) * 100; ?>%"></div>
+                            <div class="quiz-content">
+                                <!-- Timer and Progress Header -->
+                                <div class="text-center mb-4">
+                                    <div id="exam-timer" class="text-xl font-bold text-primary mb-2"></div>
+                                    <h2 class="text-xl font-bold text-primary mb-2">Question <?php echo $sn; ?> of <?php echo $total; ?></h2>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+                                        <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: <?php echo ($sn / $total) * 100; ?>%"></div>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <?php
-                            $row = mysqli_fetch_array($q);
-                            $qns = $row['qns'];
-                            $qid = $row['qid'];
-                            ?>
-                            
-                            <p class="text-lg mb-6"><?php echo $qns; ?></p>
-                            
-                            <form action="update.php?q=quiz&step=2&eid=<?php echo $eid; ?>&n=<?php echo $sn; ?>&t=<?php echo $total; ?>&qid=<?php echo $qid; ?>" method="POST" class="space-y-4">
-                                <?php
-                                $q = mysqli_query($con, "SELECT * FROM options WHERE qid='$qid' ORDER BY RAND()");
-                                $optionLabels = ['A', 'B', 'C', 'D']; 
-                                $index = 0;
                                 
-                                while ($row = mysqli_fetch_array($q)) {
-                                    $option = $row['option'];
-                                    $optionid = $row['optionid'];
+                                <!-- Question and Options -->
+                                <div class="question-section">
+                                    <?php
+                                    $row = mysqli_fetch_array($q);
+                                    $qns = $row['qns'];
+                                    $qid = $row['qid'];
                                     ?>
                                     
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="radio" name="ans" value="<?php echo $optionid; ?>" class="h-5 w-5 text-primary">
-                                        <span class="ml-3 text-gray-700">
-                                            <span class="font-medium text-primary mr-2"><?php echo $optionLabels[$index++]; ?>.</span>
-                                            <?php echo $option; ?>
-                                        </span>
-                                    </label>
+                                    <div class="bg-blue-50 p-3 rounded-lg mb-4 border-l-4 border-primary">
+                                        <p class="text-base font-medium text-gray-800"><?php echo $qns; ?></p>
+                                    </div>
                                     
-                                <?php } ?>
-                                
-                                <div class="pt-6">
-                                    <button type="submit" class="btn-primary inline-flex items-center justify-center space-x-2">
-                                        <i class="fas fa-paper-plane"></i>
-                                        <span>Submit Answer</span>
-                                    </button>
+                                    <form action="update.php?q=quiz&step=2&eid=<?php echo $eid; ?>&n=<?php echo $sn; ?>&t=<?php echo $total; ?>&qid=<?php echo $qid; ?>" method="POST" class="space-y-2">
+                                        <?php
+                                        $q = mysqli_query($con, "SELECT * FROM options WHERE qid='$qid' ORDER BY RAND()");
+                                        $optionLabels = ['A', 'B', 'C', 'D']; 
+                                        $index = 0;
+                                        
+                                        while ($row = mysqli_fetch_array($q)) {
+                                            $option = $row['option'];
+                                            $optionid = $row['optionid'];
+                                            ?>
+                                            
+                                            <label class="flex items-center p-2 border-2 border-gray-200 rounded-lg hover:bg-blue-50 hover:border-primary cursor-pointer transition-all duration-300 group">
+                                                <input type="radio" name="ans" value="<?php echo $optionid; ?>" class="h-4 w-4 text-primary">
+                                                <span class="ml-3 text-gray-700 group-hover:text-primary text-sm">
+                                                    <span class="font-bold text-primary mr-2"><?php echo $optionLabels[$index++]; ?>.</span>
+                                                    <?php echo $option; ?>
+                                                </span>
+                                            </label>
+                                            
+                                        <?php } ?>
+                                        
+                                        <!-- Submit Section -->
+                                        <div class="submit-section">
+                                            <button type="submit" class="btn-primary w-full inline-flex items-center justify-center space-x-2 py-3">
+                                                <i class="fas fa-paper-plane"></i>
+                                                <span>Submit Answer</span>
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
-                            
+                            </div>
+                        </div>
+                        
+                        <!-- Camera and Timer Sidebar -->
+                        <div class="camera-sidebar">
                             <!-- Camera Section -->
                             <div class="camera-section">
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">Live Monitoring</h4>
                                 <img src="http://127.0.0.1:5000/video_feed" alt="Video Feed" class="rounded-lg">
+                            </div>
+                            
+                            <!-- Additional Info Section -->
+                            <div class="timer-section">
+                                <div class="text-center">
+                                    <i class="fas fa-shield-alt text-4xl text-primary mb-3"></i>
+                                    <h4 class="font-bold text-gray-700 mb-2">Secure Exam Mode</h4>
+                                    <p class="text-sm text-gray-600 mb-3">Face tracking is active</p>
+                                    <div class="bg-green-100 text-green-800 text-xs px-3 py-2 rounded-full inline-block">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Monitoring Active
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -837,13 +940,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize timer variables
         let timePerQuestion = <?php echo $time_per_question; ?>; // Time per question in seconds
         let timeRemaining = timePerQuestion;
-        let timerElement = document.createElement('div');
-        timerElement.id = 'exam-timer';
-        timerElement.className = 'text-xl font-bold';
-        
-        // Insert timer at the top of the quiz section
-        let quizSection = document.querySelector('.quiz-section');
-        quizSection.insertBefore(timerElement, quizSection.firstChild);
+        let timerElement = document.getElementById('exam-timer');
         
         let timerInterval;
 

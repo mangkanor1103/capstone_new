@@ -266,6 +266,72 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 320px;
+            max-width: 500px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(100%);
+            transition: all 0.3s ease-in-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .notification.info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        
+        .notification.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .notification .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .notification .notification-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .notification .notification-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .notification .notification-close:hover {
+            color: white;
+        }
     </style>
 </head>
 
@@ -510,7 +576,7 @@
                     </a>
                 </div>
                 <div class="group">
-                    <a href="feedback.php" target="_blank" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-accent transition-all duration-300">
+                    <a href="#" id="feedbackBtn" class="inline-flex justify-center md:justify-start items-center space-x-2 hover:text-accent transition-all duration-300">
                         <i class="fas fa-comments text-2xl"></i>
                         <div>
                             <div class="font-medium">Feedback</div>
@@ -542,7 +608,7 @@
                 <button class="closeModal text-white text-2xl hover:text-blue-200 transition-colors">&times;</button>
             </div>
             <div class="p-6 space-y-4">
-                <form class="space-y-4" action="login.php?q=index.php" method="POST">
+                <form class="space-y-4" action="login.php?q=index.php" method="POST" onsubmit="handleLoginSubmit(event)">
                     <div class="space-y-2">
                         <label for="login-email" class="form-label">Email Address</label>
                         <div class="relative rounded-md shadow-sm">
@@ -563,7 +629,12 @@
                     </div>
                     <div class="flex justify-between pt-2">
                         <button type="button" class="closeModal btn-outline">Cancel</button>
-                        <button type="submit" class="btn-primary">Sign In</button>
+                        <button type="submit" class="btn-primary" id="loginSubmitBtn">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Sign In</span>
+                            </span>
+                        </button>
                     </div>
                 </form>
                 
@@ -686,19 +757,109 @@
         </div>
     </div>
 
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content w-full max-w-lg">
+            <div class="bg-gradient-to-r from-accent to-accent-dark text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-xl font-bold">Share Your Feedback</h3>
+                <button class="closeModal text-white text-2xl hover:text-green-200 transition-colors">&times;</button>
+            </div>
+            <div class="p-6">
+                <div id="feedbackForm">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-accent to-primary rounded-full mb-4">
+                            <i class="fas fa-comments text-2xl text-white"></i>
+                        </div>
+                        <p class="text-gray-600">Help us improve FaceTrackED by sharing your thoughts and suggestions</p>
+                    </div>
+                    
+                    <form onsubmit="submitFeedback(event)" class="space-y-4">
+                        <div class="space-y-2">
+                            <label for="feedback-name" class="form-label">
+                                <i class="fas fa-user mr-2 text-primary"></i>Full Name
+                            </label>
+                            <input id="feedback-name" name="name" placeholder="Enter your full name" class="form-input" type="text" required>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="feedback-subject" class="form-label">
+                                <i class="fas fa-tag mr-2 text-secondary"></i>Subject
+                            </label>
+                            <input id="feedback-subject" name="subject" placeholder="What is this feedback about?" class="form-input" type="text" required>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="feedback-email" class="form-label">
+                                <i class="fas fa-envelope mr-2 text-accent"></i>Email Address
+                            </label>
+                            <input id="feedback-email" name="email" placeholder="Enter your email address" class="form-input" type="email" required>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="feedback-message" class="form-label">
+                                <i class="fas fa-comment-dots mr-2 text-primary"></i>Your Feedback
+                            </label>
+                            <textarea id="feedback-message" rows="4" name="feedback" class="form-input resize-none" placeholder="Share your thoughts, suggestions, or report any issues you've encountered..." required></textarea>
+                        </div>
+                        
+                        <div class="flex justify-between pt-4">
+                            <button type="button" class="closeModal btn-outline">Cancel</button>
+                            <button type="submit" class="btn-accent" id="feedbackSubmitBtn">
+                                <span class="flex items-center space-x-2">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Send Feedback</span>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Success Message (hidden by default) -->
+                <div id="feedbackSuccess" class="text-center p-8 hidden">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-accent rounded-full mb-4">
+                        <i class="fas fa-check text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Thank You!</h3>
+                    <p class="text-lg text-gray-600 mb-6">Your feedback has been submitted successfully. We appreciate your input!</p>
+                    <button onclick="resetFeedbackModal()" class="btn-accent">
+                        <span class="flex items-center space-x-2">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Send Another Feedback</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function startCamera() {
             const video = document.getElementById('camera');
             const captureBtn = document.getElementById('captureBtn');
+            const startCameraBtn = document.querySelector('button[onclick="startCamera()"]');
 
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
                     video.srcObject = stream;
                     video.classList.remove('hidden');
                     captureBtn.classList.remove('hidden');
+                    showNotification('Camera started successfully! Position your face and click capture.', 'success');
                 })
                 .catch(err => {
-                    alert("Camera access denied: " + err);
+                    console.error('Camera error:', err);
+                    let errorMessage = 'Camera access denied. ';
+                    
+                    if (err.name === 'NotAllowedError') {
+                        errorMessage += 'Please allow camera permission and try again.';
+                    } else if (err.name === 'NotFoundError') {
+                        errorMessage += 'No camera found on your device.';
+                    } else if (err.name === 'NotReadableError') {
+                        errorMessage += 'Camera is being used by another application.';
+                    } else {
+                        errorMessage += err.message || 'Unknown camera error occurred.';
+                    }
+                    
+                    showNotification(errorMessage, 'error');
                 });
         }
 
@@ -722,9 +883,155 @@
             captureBtn.classList.add('hidden');
             
             video.srcObject.getTracks().forEach(track => track.stop());
+            showNotification('Photo captured successfully!', 'success');
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notif => notif.remove());
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // Set icon based on type
+            let icon = '';
+            switch(type) {
+                case 'success':
+                    icon = 'fas fa-check-circle';
+                    break;
+                case 'error':
+                    icon = 'fas fa-exclamation-triangle';
+                    break;
+                case 'warning':
+                    icon = 'fas fa-exclamation-circle';
+                    break;
+                case 'info':
+                default:
+                    icon = 'fas fa-info-circle';
+                    break;
+            }
+            
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="${icon} notification-icon"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+        
+        // Handle login form submission with loading state
+        function handleLoginSubmit(event) {
+            const submitBtn = document.getElementById('loginSubmitBtn');
+            const originalContent = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = `
+                <span class="flex items-center space-x-2">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Signing In...</span>
+                </span>
+            `;
+            submitBtn.disabled = true;
+            
+            showNotification('Attempting to sign in...', 'info');
+            
+            // Reset button after 10 seconds in case of slow response
+            setTimeout(() => {
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+            }, 10000);
+        }
+        
+        // Check URL parameters for notifications
+        function checkForNotifications() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const success = urlParams.get('success');
+            const message = urlParams.get('message');
+            
+            if (error) {
+                let errorMessage = '';
+                switch(error) {
+                    case 'invalid_credentials':
+                    case 'login_failed':
+                        errorMessage = '🔐 Invalid email or password. Please check your credentials and try again.';
+                        break;
+                    case 'user_not_found':
+                        errorMessage = '👤 No account found with this email address. Please register first.';
+                        break;
+                    case 'account_disabled':
+                        errorMessage = '🚫 Your account has been disabled. Please contact support.';
+                        break;
+                    case 'too_many_attempts':
+                        errorMessage = '⏰ Too many login attempts. Please try again later.';
+                        break;
+                    default:
+                        errorMessage = message || '❌ Login failed. Please try again.';
+                }
+                showNotification(errorMessage, 'error');
+                
+                // Open login modal if there's a login error
+                setTimeout(() => {
+                    openModal('login');
+                }, 500);
+            }
+            
+            if (success) {
+                let successMessage = '';
+                switch(success) {
+                    case 'registered':
+                        successMessage = '🎉 Account created successfully! You can now sign in.';
+                        break;
+                    case 'logout':
+                        successMessage = '👋 You have been successfully logged out.';
+                        break;
+                    case 'password_reset':
+                        successMessage = '📧 Password reset instructions sent to your email.';
+                        break;
+                    default:
+                        successMessage = message || '✅ Operation completed successfully!';
+                }
+                showNotification(successMessage, 'success');
+            }
+            
+            // Clean URL parameters after showing notifications
+            if (error || success) {
+                const url = new URL(window.location);
+                url.searchParams.delete('error');
+                url.searchParams.delete('success');
+                url.searchParams.delete('message');
+                window.history.replaceState({}, document.title, url.toString());
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for URL parameters to show notifications
+            checkForNotifications();
+            
             const modalElements = document.querySelectorAll('.modal');
             const modals = {};
             
@@ -762,6 +1069,14 @@
                 developersBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     openModal('developers');
+                });
+            }
+            
+            const feedbackBtn = document.getElementById('feedbackBtn');
+            if (feedbackBtn) {
+                feedbackBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openModal('feedback');
                 });
             }
             
@@ -807,6 +1122,7 @@
                         .then(stream => {
                             videoElement.srcObject = stream;
                             statusMessage.textContent = "Please position your face in front of the camera...";
+                            showNotification('Face authentication camera started', 'info');
                             
                             setTimeout(() => {
                                 statusMessage.textContent = "Scanning...";
@@ -814,16 +1130,32 @@
                                     statusMessage.textContent = "Face recognized! Logging you in...";
                                     setTimeout(() => {
                                         statusMessage.textContent = "Authentication complete!";
+                                        showNotification('Face authentication successful!', 'success');
                                     }, 1000);
                                 }, 2000);
                             }, 1500);
                         })
                         .catch(err => {
                             console.error("Camera error:", err);
+                            let errorMessage = 'Face authentication failed. ';
+                            
+                            if (err.name === 'NotAllowedError') {
+                                errorMessage += 'Camera permission denied. Please allow camera access.';
+                            } else if (err.name === 'NotFoundError') {
+                                errorMessage += 'No camera found on your device.';
+                            } else if (err.name === 'NotReadableError') {
+                                errorMessage += 'Camera is being used by another application.';
+                            } else {
+                                errorMessage += err.message || 'Unknown camera error occurred.';
+                            }
+                            
                             statusMessage.textContent = "Unable to access camera.";
+                            showNotification(errorMessage, 'error');
                         });
                 } else {
-                    statusMessage.textContent = "Camera not supported in this browser.";
+                    const errorMsg = "Camera not supported in this browser.";
+                    statusMessage.textContent = errorMsg;
+                    showNotification('Camera not supported in this browser. Please use a modern browser.', 'error');
                 }
             }
         });
@@ -831,13 +1163,108 @@
         function validateForm() {
             const password = document.getElementById('password').value;
             const cpassword = document.getElementById('cpassword').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const photoData = document.getElementById('photo_data').value;
             
+            // Check if passwords match
             if (password !== cpassword) {
-                alert("Passwords do not match!");
+                showNotification('🔒 Passwords do not match! Please ensure both password fields are identical.', 'error');
                 return false;
             }
             
+            // Check password strength
+            if (password.length < 6) {
+                showNotification('🔐 Password must be at least 6 characters long for security.', 'error');
+                return false;
+            }
+            
+            // Check if photo is captured
+            if (!photoData) {
+                showNotification('📸 Please capture your profile photo for face recognition setup.', 'error');
+                return false;
+            }
+            
+            // Show success message
+            showNotification('🚀 Creating your account... Please wait while we process your information.', 'info');
+            
+            // Add loading state to submit button
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = `
+                <span class="flex items-center justify-center space-x-3">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Creating Account...</span>
+                </span>
+            `;
+            submitBtn.disabled = true;
+            
             return true;
+        }
+        
+        // Handle feedback form submission
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('feedbackSubmitBtn');
+            const originalContent = submitBtn.innerHTML;
+            const formData = new FormData(event.target);
+            
+            // Show loading state
+            submitBtn.innerHTML = `
+                <span class="flex items-center space-x-2">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Sending...</span>
+                </span>
+            `;
+            submitBtn.disabled = true;
+            
+            showNotification('Submitting your feedback...', 'info');
+            
+            // Submit feedback via fetch
+            fetch('feed.php?q=feedback', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset button
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    // Show success
+                    showNotification('🎉 Thank you for your feedback! We appreciate your input.', 'success');
+                    
+                    // Show success view in modal
+                    document.getElementById('feedbackForm').classList.add('hidden');
+                    document.getElementById('feedbackSuccess').classList.remove('hidden');
+                } else {
+                    showNotification('❌ ' + (data.message || 'Failed to submit feedback. Please try again.'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Reset button
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+                
+                showNotification('❌ Failed to submit feedback. Please try again.', 'error');
+            });
+        }
+        
+        // Reset feedback modal to initial state
+        function resetFeedbackModal() {
+            document.getElementById('feedbackForm').classList.remove('hidden');
+            document.getElementById('feedbackSuccess').classList.add('hidden');
+            
+            // Clear form
+            const form = document.querySelector('#feedbackForm form');
+            form.reset();
         }
     </script>
 </body>
