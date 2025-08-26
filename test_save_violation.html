@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Save Violation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .test-button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .test-button:hover { background: #0056b3; }
+        .result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .log { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test Save Tab Violation</h1>
+        <p>This page tests the save_tab_violation.php endpoint.</p>
+        
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="testGetEndpoint()">Test GET Endpoint</button>
+            <button class="test-button" onclick="testPostEndpoint()">Test POST Endpoint</button>
+            <button class="test-button" onclick="testInvalidMethod()">Test Invalid Method</button>
+            <button class="test-button" onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div>
+            <h3>Test Log:</h3>
+            <div class="log" id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML += `[${timestamp}] ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function showResult(message, isSuccess) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function testGetEndpoint() {
+            log('Testing GET endpoint...');
+            
+            fetch('save_tab_violation.php?test=1')
+                .then(response => {
+                    log(`GET Response status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    log(`GET Response: ${JSON.stringify(data, null, 2)}`);
+                    if (data.success) {
+                        showResult('✓ GET endpoint working', true);
+                    } else {
+                        showResult('✗ GET endpoint failed: ' + data.message, false);
+                    }
+                })
+                .catch(error => {
+                    log(`GET Error: ${error.message}`);
+                    showResult('✗ GET request failed: ' + error.message, false);
+                });
+        }
+
+        function testPostEndpoint() {
+            log('Testing POST endpoint...');
+            
+            const testData = {
+                email: 'test@example.com',
+                name: 'Test User',
+                violation_type: 'Test violation',
+                violation_count: 1,
+                timestamp: new Date().toISOString(),
+                exam_id: 'test_exam',
+                question_number: 1
+            };
+            
+            log(`POST Data: ${JSON.stringify(testData, null, 2)}`);
+            
+            fetch('save_tab_violation.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => {
+                log(`POST Response status: ${response.status}`);
+                return response.text();
+            })
+            .then(responseText => {
+                log(`POST Raw response: ${responseText}`);
+                try {
+                    const data = JSON.parse(responseText);
+                    log(`POST Parsed response: ${JSON.stringify(data, null, 2)}`);
+                    if (data.success) {
+                        showResult('✓ POST endpoint working', true);
+                    } else {
+                        showResult('✗ POST endpoint failed: ' + data.message, false);
+                    }
+                } catch (e) {
+                    log(`POST JSON parse error: ${e.message}`);
+                    showResult('✗ Invalid JSON response from POST', false);
+                }
+            })
+            .catch(error => {
+                log(`POST Error: ${error.message}`);
+                showResult('✗ POST request failed: ' + error.message, false);
+            });
+        }
+
+        function testInvalidMethod() {
+            log('Testing invalid method (PUT)...');
+            
+            fetch('save_tab_violation.php', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({test: 'data'})
+            })
+            .then(response => {
+                log(`PUT Response status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                log(`PUT Response: ${JSON.stringify(data, null, 2)}`);
+                if (!data.success && data.message.includes('Invalid request method')) {
+                    showResult('✓ Invalid method properly rejected', true);
+                } else {
+                    showResult('✗ Invalid method not properly handled', false);
+                }
+            })
+            .catch(error => {
+                log(`PUT Error: ${error.message}`);
+                showResult('✗ PUT test failed: ' + error.message, false);
+            });
+        }
+
+        // Initialize
+        log('Test page loaded');
+    </script>
+</body>
+</html>

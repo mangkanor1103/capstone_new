@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Detection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.active {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .violation-count {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Tab Switching Detection Test</h1>
+        <p>This page tests the tab switching detection functionality.</p>
+        
+        <div class="status" id="detectionStatus">
+            Detection Status: <span id="statusText">Inactive</span>
+        </div>
+        
+        <div class="violation-count">
+            Violations: <span id="violationCount">0</span>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="startDetection()">Start Detection</button>
+            <button class="test-button" onclick="stopDetection()">Stop Detection</button>
+            <button class="test-button" onclick="testViolation()">Test Violation</button>
+            <button class="test-button" onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div>
+            <h3>Test Instructions:</h3>
+            <ol>
+                <li>Click "Start Detection" to begin monitoring</li>
+                <li>Try switching to another tab (Ctrl+Tab or click another tab)</li>
+                <li>Try pressing F12 or right-clicking</li>
+                <li>Try minimizing the window</li>
+                <li>Watch the log for detection events</li>
+            </ol>
+        </div>
+        
+        <div>
+            <h3>Detection Log:</h3>
+            <div class="log" id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let tabSwitchWarnings = 0;
+        let isDetectionActive = false;
+        let detectionEnabled = false;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML += `[${timestamp}] ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStatus() {
+            const statusElement = document.getElementById('detectionStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (isDetectionActive) {
+                statusElement.className = 'status active';
+                statusText.textContent = 'Active';
+            } else {
+                statusElement.className = 'status inactive';
+                statusText.textContent = 'Inactive';
+            }
+        }
+
+        function updateViolationCount() {
+            document.getElementById('violationCount').textContent = tabSwitchWarnings;
+        }
+
+        function startDetection() {
+            isDetectionActive = true;
+            detectionEnabled = true;
+            updateStatus();
+            log('Detection started');
+            
+            // Add event listeners
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('contextmenu', handleContextMenu);
+            window.addEventListener('blur', handleWindowBlur);
+            window.addEventListener('focus', handleWindowFocus);
+            
+            log('Event listeners attached');
+        }
+
+        function stopDetection() {
+            isDetectionActive = false;
+            detectionEnabled = false;
+            updateStatus();
+            log('Detection stopped');
+            
+            // Remove event listeners
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('contextmenu', handleContextMenu);
+            window.removeEventListener('blur', handleWindowBlur);
+            window.removeEventListener('focus', handleWindowFocus);
+            
+            log('Event listeners removed');
+        }
+
+        function testViolation() {
+            if (!isDetectionActive) {
+                log('ERROR: Detection not active - start detection first');
+                return;
+            }
+            recordViolation('Manual test violation');
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+            tabSwitchWarnings = 0;
+            updateViolationCount();
+        }
+
+        function recordViolation(violationType) {
+            if (!isDetectionActive) return;
+            
+            tabSwitchWarnings++;
+            log(`VIOLATION DETECTED: ${violationType} (Count: ${tabSwitchWarnings})`);
+            updateViolationCount();
+            
+            // Show alert
+            Swal.fire({
+                title: 'Violation Detected!',
+                text: `${violationType} - Violation #${tabSwitchWarnings}`,
+                icon: 'warning',
+                timer: 2000,
+                timerProgressBar: true
+            });
+            
+            if (tabSwitchWarnings >= 3) {
+                log('CRITICAL: Maximum violations reached - exam would be terminated');
+                Swal.fire({
+                    title: 'Exam Would Be Terminated',
+                    text: 'Maximum violations reached (3/3)',
+                    icon: 'error'
+                });
+            }
+        }
+
+        function handleVisibilityChange() {
+            if (!detectionEnabled) return;
+            
+            if (document.hidden) {
+                log('Event: Page became hidden');
+                recordViolation('Tab switched or window minimized');
+            } else {
+                log('Event: Page became visible');
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (!detectionEnabled) return;
+            
+            log(`Key pressed: ${e.key} (Ctrl: ${e.ctrlKey}, Shift: ${e.shiftKey}, Alt: ${e.altKey})`);
+            
+            // F12 - Developer Tools
+            if (e.key === 'F12') {
+                e.preventDefault();
+                recordViolation('Developer tools attempt (F12)');
+                return false;
+            }
+            
+            // Ctrl+Shift+I - Developer Tools
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                recordViolation('Developer tools attempt (Ctrl+Shift+I)');
+                return false;
+            }
+            
+            // Ctrl+U - View Source
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                recordViolation('View source attempt (Ctrl+U)');
+                return false;
+            }
+            
+            // Alt+Tab - Window switching
+            if (e.altKey && e.key === 'Tab') {
+                e.preventDefault();
+                recordViolation('Window switching attempt (Alt+Tab)');
+                return false;
+            }
+            
+            // Ctrl+Tab - Tab switching
+            if (e.ctrlKey && e.key === 'Tab') {
+                e.preventDefault();
+                recordViolation('Tab switching attempt (Ctrl+Tab)');
+                return false;
+            }
+        }
+
+        function handleContextMenu(e) {
+            if (!detectionEnabled) return;
+            
+            e.preventDefault();
+            log('Right-click detected');
+            recordViolation('Context menu attempted');
+        }
+
+        function handleWindowBlur() {
+            if (!detectionEnabled) return;
+            
+            log('Window lost focus');
+            recordViolation('Window lost focus');
+        }
+
+        function handleWindowFocus() {
+            if (!detectionEnabled) return;
+            
+            log('Window gained focus');
+        }
+
+        // Initialize
+        updateStatus();
+        updateViolationCount();
+        log('Test page loaded - ready for testing');
+    </script>
+</body>
+</html>

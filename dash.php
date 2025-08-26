@@ -399,6 +399,9 @@ session_start();
                 <a class="nav-item <?php if(@$_GET['q']==5) echo 'active'; ?>" href="dash.php?q=5">
                     <i class="fas fa-exclamation-triangle mr-2"></i> Warnings
                 </a>
+                <a class="nav-item <?php if(@$_GET['q']==7) echo 'active'; ?>" href="dash.php?q=7">
+                    <i class="fas fa-shield-alt mr-2"></i> Tab Violations
+                </a>
                 <a class="nav-item <?php if(@$_GET['q']==6) echo 'active'; ?>" href="dash.php?q=6">
                     <i class="fas fa-chart-line mr-2"></i> Analytics
                 </a>
@@ -421,6 +424,7 @@ session_start();
                         else if(@$_GET['q']==3) echo "Feedback";
                         else if(@$_GET['q']==4) echo "Add Exam";
                         else if(@$_GET['q']==5) echo "Warnings";
+                        else if(@$_GET['q']==7) echo "Tab Violations Monitor";
                         else if(@$_GET['q']==6) echo "Analytics Dashboard";
                         else echo "Dashboard";
                     ?>
@@ -2196,6 +2200,291 @@ session_start();
                             </div>';
                         }
                         ?>
+                    <?php } ?>
+
+                    <?php if(@$_GET['q']==7) { ?>
+                        <h2 class="panel-title">Tab Violations Monitor</h2>
+                        <p class="text-gray-600 mb-6">Monitor and manage tab switching violations during exams.</p>
+                        
+                        <?php
+                        // Get violation statistics
+                        $total_violations_query = mysqli_query($con, "SELECT COUNT(*) as count FROM tab_violations") or die('Error fetching violations');
+                        $total_violations = mysqli_fetch_assoc($total_violations_query)['count'];
+                        
+                        $today_violations_query = mysqli_query($con, "SELECT COUNT(*) as count FROM tab_violations WHERE DATE(timestamp) = CURDATE()") or die('Error fetching today violations');
+                        $today_violations = mysqli_fetch_assoc($today_violations_query)['count'];
+                        
+                        $terminated_exams_query = mysqli_query($con, "SELECT COUNT(*) as count FROM exam_terminations") or die('Error fetching terminated exams');
+                        $terminated_exams = mysqli_fetch_assoc($terminated_exams_query)['count'];
+                        
+                        $unique_violators_query = mysqli_query($con, "SELECT COUNT(DISTINCT email) as count FROM tab_violations") or die('Error fetching unique violators');
+                        $unique_violators = mysqli_fetch_assoc($unique_violators_query)['count'];
+                        ?>
+                        
+                        <!-- Statistics Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">Total Violations</p>
+                                        <p class="text-3xl font-bold text-red-600"><?php echo $total_violations; ?></p>
+                                    </div>
+                                    <div class="p-3 bg-red-100 rounded-full">
+                                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">Today's Violations</p>
+                                        <p class="text-3xl font-bold text-orange-600"><?php echo $today_violations; ?></p>
+                                    </div>
+                                    <div class="p-3 bg-orange-100 rounded-full">
+                                        <i class="fas fa-calendar-day text-orange-600 text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">Terminated Exams</p>
+                                        <p class="text-3xl font-bold text-purple-600"><?php echo $terminated_exams; ?></p>
+                                    </div>
+                                    <div class="p-3 bg-purple-100 rounded-full">
+                                        <i class="fas fa-ban text-purple-600 text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-600">Unique Violators</p>
+                                        <p class="text-3xl font-bold text-blue-600"><?php echo $unique_violators; ?></p>
+                                    </div>
+                                    <div class="p-3 bg-blue-100 rounded-full">
+                                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <?php
+                        // Get filtering options
+                        $selected_violation_type = isset($_GET['violation_type']) ? $_GET['violation_type'] : '';
+                        $selected_email = isset($_GET['email_filter']) ? $_GET['email_filter'] : '';
+                        $selected_exam = isset($_GET['exam_filter']) ? $_GET['exam_filter'] : '';
+                        
+                        // Build query with filters
+                        $where_conditions = [];
+                        if (!empty($selected_violation_type)) {
+                            $where_conditions[] = "tv.violation_type = '" . mysqli_real_escape_string($con, $selected_violation_type) . "'";
+                        }
+                        if (!empty($selected_email)) {
+                            $where_conditions[] = "tv.email = '" . mysqli_real_escape_string($con, $selected_email) . "'";
+                        }
+                        if (!empty($selected_exam)) {
+                            $where_conditions[] = "tv.exam_id = '" . mysqli_real_escape_string($con, $selected_exam) . "'";
+                        }
+                        
+                        $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
+                        
+                        // Get violations with user and exam info
+                        $violations_query = "SELECT tv.*, u.name as user_name, q.title as exam_title 
+                                           FROM tab_violations tv 
+                                           LEFT JOIN user u ON tv.email = u.email 
+                                           LEFT JOIN quiz q ON tv.exam_id = q.eid 
+                                           $where_clause 
+                                           ORDER BY tv.timestamp DESC 
+                                           LIMIT 50";
+                        $violations_result = mysqli_query($con, $violations_query) or die('Error fetching violations');
+                        ?>
+                        
+                        <!-- Filters -->
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                            <h3 class="text-lg font-semibold mb-4">Filters</h3>
+                            <form method="get" action="dash.php" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input type="hidden" name="q" value="7">
+                                
+                                <div>
+                                    <label class="form-label">Violation Type</label>
+                                    <select name="violation_type" class="form-input">
+                                        <option value="">All Types</option>
+                                        <option value="Tab switched or window minimized" <?php echo $selected_violation_type == 'Tab switched or window minimized' ? 'selected' : ''; ?>>Tab Switching</option>
+                                        <option value="Developer tools attempt (F12)" <?php echo $selected_violation_type == 'Developer tools attempt (F12)' ? 'selected' : ''; ?>>Developer Tools</option>
+                                        <option value="Context menu attempted" <?php echo $selected_violation_type == 'Context menu attempted' ? 'selected' : ''; ?>>Context Menu</option>
+                                        <option value="Window lost focus" <?php echo $selected_violation_type == 'Window lost focus' ? 'selected' : ''; ?>>Lost Focus</option>
+                                        <option value="Exited fullscreen mode" <?php echo $selected_violation_type == 'Exited fullscreen mode' ? 'selected' : ''; ?>>Exited Fullscreen</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">User Email</label>
+                                    <input type="text" name="email_filter" value="<?php echo htmlspecialchars($selected_email); ?>" 
+                                           placeholder="Enter email..." class="form-input">
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label">Exam ID</label>
+                                    <input type="text" name="exam_filter" value="<?php echo htmlspecialchars($selected_exam); ?>" 
+                                           placeholder="Enter exam ID..." class="form-input">
+                                </div>
+                                
+                                <div class="flex items-end space-x-2">
+                                    <button type="submit" class="btn-primary">Apply Filters</button>
+                                    <a href="dash.php?q=7" class="btn-outline">Clear</a>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Violations Table -->
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white">
+                                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Violation Type</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exam</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question #</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <?php
+                                        if (mysqli_num_rows($violations_result) > 0) {
+                                            while ($violation = mysqli_fetch_array($violations_result)) {
+                                                $severity_class = '';
+                                                $severity_text = '';
+                                                
+                                                switch($violation['violation_count']) {
+                                                    case 1:
+                                                        $severity_class = 'bg-yellow-100 text-yellow-800';
+                                                        $severity_text = 'Warning';
+                                                        break;
+                                                    case 2:
+                                                        $severity_class = 'bg-orange-100 text-orange-800';
+                                                        $severity_text = 'Alert';
+                                                        break;
+                                                    case 3:
+                                                    default:
+                                                        $severity_class = 'bg-red-100 text-red-800';
+                                                        $severity_text = 'Critical';
+                                                        break;
+                                                }
+                                                
+                                                echo '<tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="text-sm font-medium text-gray-900">' . htmlspecialchars($violation['user_name'] ?? 'Unknown') . '</div>
+                                                            <div class="text-sm text-gray-500">' . htmlspecialchars($violation['email']) . '</div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' . htmlspecialchars($violation['violation_type']) . '</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' . htmlspecialchars($violation['exam_title'] ?? $violation['exam_id'] ?? 'N/A') . '</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' . ($violation['question_number'] ?? 'N/A') . '</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' . $severity_class . '">
+                                                            ' . $violation['violation_count'] . ' - ' . $severity_text . '
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' . date('M d, Y H:i', strtotime($violation['timestamp'])) . '</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <button onclick="viewViolationDetails(' . $violation['id'] . ')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                                                        <button onclick="dismissViolation(' . $violation['id'] . ')" class="text-red-600 hover:text-red-900">Dismiss</button>
+                                                    </td>
+                                                </tr>';
+                                            }
+                                        } else {
+                                            echo '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                                <i class="fas fa-shield-alt text-4xl mb-4 text-gray-400"></i>
+                                                <p>No violations found.</p>
+                                            </td></tr>';
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Violation Type Distribution Chart -->
+                        <div class="mt-8 bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4">Violation Type Distribution</h3>
+                            <div class="relative h-64">
+                                <canvas id="violationChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <script>
+                        // Chart for violation types
+                        <?php
+                        $chart_query = mysqli_query($con, "SELECT violation_type, COUNT(*) as count FROM tab_violations GROUP BY violation_type ORDER BY count DESC");
+                        $chart_labels = [];
+                        $chart_data = [];
+                        while ($row = mysqli_fetch_array($chart_query)) {
+                            $chart_labels[] = addslashes($row['violation_type']);
+                            $chart_data[] = $row['count'];
+                        }
+                        ?>
+                        
+                        const ctx = document.getElementById('violationChart').getContext('2d');
+                        const violationChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: [<?php echo "'" . implode("','", $chart_labels) . "'"; ?>],
+                                datasets: [{
+                                    data: [<?php echo implode(',', $chart_data); ?>],
+                                    backgroundColor: [
+                                        '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'
+                                    ],
+                                    borderWidth: 2,
+                                    borderColor: '#ffffff'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 20,
+                                            usePointStyle: true
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        
+                        function viewViolationDetails(violationId) {
+                            // Implement violation details modal
+                            Swal.fire({
+                                title: 'Violation Details',
+                                text: 'Violation ID: ' + violationId,
+                                icon: 'info'
+                            });
+                        }
+                        
+                        function dismissViolation(violationId) {
+                            Swal.fire({
+                                title: 'Dismiss Violation?',
+                                text: 'This will mark the violation as dismissed.',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, dismiss it'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // Implement dismissal logic
+                                    Swal.fire('Dismissed!', 'The violation has been dismissed.', 'success');
+                                }
+                            });
+                        }
+                        </script>
                     <?php } ?>
 
                     <?php if(@$_GET['q']==6) { ?>

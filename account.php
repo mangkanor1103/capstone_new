@@ -671,6 +671,15 @@ if (!isset($_SESSION['welcomed'])) {
                                         
                                         <!-- Submit Section -->
                                         <div class="submit-section">
+                                            <!-- Debug Test Section (Remove in production) -->
+                                            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                                                <p class="text-xs text-red-600 mb-2">Debug: Tab Detection Test</p>
+                                                <button type="button" onclick="testTabDetection()" class="bg-red-500 text-white px-3 py-1 rounded text-xs">
+                                                    Test Violation
+                                                </button>
+                                                <span id="violationCount" class="text-xs text-red-600 ml-2">Violations: 0</span>
+                                            </div>
+                                            
                                             <button type="submit" class="btn-primary w-full inline-flex items-center justify-center space-x-2 py-3">
                                                 <i class="fas fa-paper-plane"></i>
                                                 <span>Submit Answer</span>
@@ -709,14 +718,49 @@ if (!isset($_SESSION['welcomed'])) {
             <?php if (@$_GET['q'] == 'result' && @$_GET['eid']) {
                 $eid = @$_GET['eid'];
                 $q = mysqli_query($con, "SELECT * FROM history WHERE eid='$eid' AND email='$email' ") or die('Error157');
+                $was_terminated = isset($_GET['terminated']) && $_GET['terminated'] == '1';
             ?>
                 <div class="max-w-4xl mx-auto content-card overflow-hidden transform transition-all duration-500 hover:shadow-2xl">
                     <div class="p-8 md:p-12">
                         <div class="text-center mb-8">
-                            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Exam Results</h2>
-                            <p class="text-white opacity-90">Your performance summary</p>
+                            <?php if ($was_terminated) { ?>
+                                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                                <h2 class="text-3xl md:text-4xl font-bold text-red-600 mb-4">Exam Terminated</h2>
+                                <p class="text-red-500 opacity-90">Your exam was terminated due to security violations</p>
+                            <?php } else { ?>
+                                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Exam Results</h2>
+                                <p class="text-white opacity-90">Your performance summary</p>
+                            <?php } ?>
                         </div>
                         <div class="bg-white bg-opacity-95 backdrop-blur-20 p-6 rounded-xl shadow-md">
+                            <?php if ($was_terminated) { ?>
+                                <!-- Termination Notice -->
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-exclamation-triangle text-red-500 text-xl mr-3 mt-1"></i>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-red-800 mb-2">Exam Terminated Due to Security Violations</h3>
+                                            <p class="text-red-700 mb-3">Your exam was automatically terminated because of repeated attempts to:</p>
+                                            <ul class="list-disc list-inside text-red-600 space-y-1 mb-3">
+                                                <li>Switch browser tabs or windows</li>
+                                                <li>Access developer tools or view source</li>
+                                                <li>Exit fullscreen mode</li>
+                                                <li>Use prohibited keyboard shortcuts</li>
+                                            </ul>
+                                            <?php
+                                            // Get violation details
+                                            $violation_query = mysqli_query($con, "SELECT COUNT(*) as count FROM tab_violations WHERE email='$email' AND exam_id='$eid'");
+                                            if ($violation_query && mysqli_num_rows($violation_query) > 0) {
+                                                $violation_data = mysqli_fetch_assoc($violation_query);
+                                                $violation_count = $violation_data['count'];
+                                                echo "<p class='text-red-700'><strong>Total violations recorded:</strong> $violation_count</p>";
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                            
                             <table class="min-w-full exam-table">
                                 <thead>
                                     <tr>
@@ -729,21 +773,57 @@ if (!isset($_SESSION['welcomed'])) {
                                 while ($row = mysqli_fetch_array($q)) {
                                     $r = $row['sahi']; // Right answers
                                     $qa = $row['level']; // Total questions
+                                    $terminated = isset($row['terminated']) ? $row['terminated'] : 0;
+                                    $termination_reason = isset($row['termination_reason']) ? $row['termination_reason'] : '';
                                     
-                                    // Update the rank field with the right answers count
-                                    mysqli_query($con, "UPDATE history SET score='$r' WHERE eid='$eid' AND email='$email'") or die('Error updating score');
+                                    // Update the rank field with the right answers count only if not terminated
+                                    if (!$terminated) {
+                                        mysqli_query($con, "UPDATE history SET score='$r' WHERE eid='$eid' AND email='$email'") or die('Error updating score');
+                                    }
                                 ?>
                                     <tr class="border-b border-gray-200">
-                                        <td class="px-4 py-4 font-medium text-primary">Right Answers (Score)</td>
-                                        <td class="px-4 py-4 text-center text-green-600 font-bold"><?php echo $r; ?></td>
+                                        <td class="px-4 py-4 font-medium text-primary">Status</td>
+                                        <td class="px-4 py-4 text-center">
+                                            <?php if ($terminated) { ?>
+                                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                    <i class="fas fa-times-circle mr-1"></i>Terminated
+                                                </span>
+                                            <?php } else { ?>
+                                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                                    <i class="fas fa-check-circle mr-1"></i>Completed
+                                                </span>
+                                            <?php } ?>
+                                        </td>
                                     </tr>
                                     <tr class="border-b border-gray-200">
-                                        <td class="px-4 py-4 font-medium text-primary">Total Questions</td>
-                                        <td class="px-4 py-4 text-center text-blue-600 font-bold"><?php echo $qa; ?></td>
+                                        <td class="px-4 py-4 font-medium text-primary">Right Answers (Score)</td>
+                                        <td class="px-4 py-4 text-center <?php echo $terminated ? 'text-gray-500' : 'text-green-600'; ?> font-bold"><?php echo $r; ?></td>
                                     </tr>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="px-4 py-4 font-medium text-primary">Questions Attempted</td>
+                                        <td class="px-4 py-4 text-center <?php echo $terminated ? 'text-gray-500' : 'text-blue-600'; ?> font-bold"><?php echo $qa; ?></td>
+                                    </tr>
+                                    <?php if ($terminated && $termination_reason) { ?>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="px-4 py-4 font-medium text-primary">Termination Reason</td>
+                                        <td class="px-4 py-4 text-center text-red-600 font-medium"><?php echo htmlspecialchars($termination_reason); ?></td>
+                                    </tr>
+                                    <?php } ?>
                                 <?php } ?>
                                 </tbody>
                             </table>
+                            
+                            <?php if ($was_terminated) { ?>
+                                <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-info-circle text-yellow-600 text-lg mr-3 mt-1"></i>
+                                        <div>
+                                            <h4 class="font-semibold text-yellow-800 mb-1">Important Notice</h4>
+                                            <p class="text-yellow-700 text-sm">This incident has been logged. Please contact your instructor if you believe this termination was in error. Future exam attempts may be restricted.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
                             
                             <div class="mt-8 text-center">
                                 <a href="account.php?q=1" class="btn-primary inline-flex items-center justify-center space-x-2">
@@ -1045,6 +1125,432 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Tab switching prevention and detection
+    let tabSwitchWarnings = 0;
+    let examStartTime = null;
+    let isExamActive = <?php echo ($_SESSION['exam_active'] ? 'true' : 'false'); ?>;
+    let tabSwitchDetectionEnabled = false;
+
+    function enableTabSwitchDetection() {
+        console.log('Enabling tab switch detection, isExamActive:', isExamActive);
+        
+        if (!isExamActive) {
+            console.log('Exam not active, skipping detection setup');
+            return;
+        }
+        
+        tabSwitchDetectionEnabled = true;
+        examStartTime = Date.now();
+        
+        console.log('Tab switch detection enabled');
+        
+        // Show initial notification about anti-cheating measures
+        Swal.fire({
+            title: 'Exam Security Active',
+            html: `
+                <div class="text-left space-y-3">
+                    <p class="flex items-center"><i class="fas fa-shield-alt text-blue-500 mr-2"></i> Tab switching detection enabled</p>
+                    <p class="flex items-center"><i class="fas fa-expand text-blue-500 mr-2"></i> Fullscreen mode required</p>
+                    <p class="flex items-center"><i class="fas fa-eye text-blue-500 mr-2"></i> Face monitoring active</p>
+                    <p class="text-sm text-red-600 mt-3"><strong>Warning:</strong> 3 violations will terminate your exam</p>
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonText: 'Start Exam',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then(() => {
+            // Continue with exam start
+            requestFullscreen();
+        });
+        
+        // Prevent right-click context menu
+        document.addEventListener('contextmenu', handleContextMenu);
+        
+        // Prevent key combinations that could be used for cheating
+        document.addEventListener('keydown', handleKeyDown);
+        
+        // Detect when user switches tabs or minimizes window
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Detect when window loses focus
+        window.addEventListener('blur', handleWindowBlur);
+        
+        // Detect when window regains focus
+        window.addEventListener('focus', handleWindowFocus);
+        
+        // Detect fullscreen changes
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+    }
+    
+    function handleContextMenu(e) {
+        if (isExamActive && tabSwitchDetectionEnabled) {
+            e.preventDefault();
+            console.log('Context menu attempt blocked');
+            recordTabSwitchViolation('Context menu attempted');
+        }
+    }
+    
+    function handleKeyDown(e) {
+        if (isExamActive && tabSwitchDetectionEnabled) {
+            console.log('Key pressed:', e.key, 'Ctrl:', e.ctrlKey, 'Shift:', e.shiftKey, 'Alt:', e.altKey);
+            
+            // F12 - Developer Tools
+            if (e.key === 'F12') {
+                e.preventDefault();
+                console.log('F12 blocked');
+                recordTabSwitchViolation('Developer tools attempt (F12)');
+                return false;
+            }
+            
+            // Ctrl+Shift+I - Developer Tools
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                console.log('Ctrl+Shift+I blocked');
+                recordTabSwitchViolation('Developer tools attempt (Ctrl+Shift+I)');
+                return false;
+            }
+            
+            // Ctrl+U - View Source
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                console.log('Ctrl+U blocked');
+                recordTabSwitchViolation('View source attempt (Ctrl+U)');
+                return false;
+            }
+            
+            // Ctrl+Shift+C - Element Inspector
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                console.log('Ctrl+Shift+C blocked');
+                recordTabSwitchViolation('Element inspector attempt (Ctrl+Shift+C)');
+                return false;
+            }
+            
+            // Alt+Tab - Window switching
+            if (e.altKey && e.key === 'Tab') {
+                e.preventDefault();
+                console.log('Alt+Tab blocked');
+                recordTabSwitchViolation('Window switching attempt (Alt+Tab)');
+                return false;
+            }
+            
+            // Ctrl+Tab - Tab switching
+            if (e.ctrlKey && e.key === 'Tab') {
+                e.preventDefault();
+                console.log('Ctrl+Tab blocked');
+                recordTabSwitchViolation('Tab switching attempt (Ctrl+Tab)');
+                return false;
+            }
+            
+            // Windows key
+            if (e.key === 'Meta' || e.key === 'OS') {
+                e.preventDefault();
+                console.log('Windows key blocked');
+                recordTabSwitchViolation('Windows key pressed');
+                return false;
+            }
+            
+            // Ctrl+Shift+J - Console
+            if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+                e.preventDefault();
+                console.log('Ctrl+Shift+J blocked');
+                recordTabSwitchViolation('Console access attempt (Ctrl+Shift+J)');
+                return false;
+            }
+            
+            // Ctrl+R or F5 - Page refresh
+            if ((e.ctrlKey && e.key === 'r') || e.key === 'F5') {
+                e.preventDefault();
+                console.log('Page refresh blocked');
+                recordTabSwitchViolation('Page refresh attempt');
+                return false;
+            }
+        }
+    }
+    
+    function handleVisibilityChange() {
+        if (isExamActive && tabSwitchDetectionEnabled) {
+            console.log('Visibility changed, document.hidden:', document.hidden);
+            if (document.hidden) {
+                console.log('Tab switched or window minimized');
+                recordTabSwitchViolation('Tab switched or window minimized');
+            } else {
+                // User returned to the tab
+                console.log('User returned to tab');
+                showTabReturnWarning();
+            }
+        }
+    }
+    
+    function handleWindowBlur() {
+        if (isExamActive && tabSwitchDetectionEnabled) {
+            console.log('Window lost focus');
+            recordTabSwitchViolation('Window lost focus');
+        }
+    }
+    
+    function handleWindowFocus() {
+        if (isExamActive && tabSwitchDetectionEnabled && tabSwitchWarnings > 0) {
+            console.log('Window regained focus');
+            showTabReturnWarning();
+        }
+    }
+    
+    function handleFullscreenChange() {
+        if (isExamActive && tabSwitchDetectionEnabled && !document.fullscreenElement) {
+            console.log('Exited fullscreen mode');
+            recordTabSwitchViolation('Exited fullscreen mode');
+            // Force return to fullscreen after a delay
+            setTimeout(() => requestFullscreen(), 1000);
+        }
+    }
+
+    function requestFullscreen() {
+        if (isExamActive && document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen request failed:', err);
+                // Show warning if fullscreen fails
+                Swal.fire({
+                    title: 'Fullscreen Required',
+                    text: 'Please allow fullscreen mode for exam security.',
+                    icon: 'warning',
+                    confirmButtonText: 'Try Again'
+                }).then(() => {
+                    requestFullscreen();
+                });
+            });
+        }
+    }
+
+    function recordTabSwitchViolation(violationType) {
+        console.log('Recording violation:', violationType, 'isExamActive:', isExamActive, 'tabSwitchDetectionEnabled:', tabSwitchDetectionEnabled);
+        
+        if (!isExamActive) {
+            console.log('Exam not active, skipping violation recording');
+            return;
+        }
+        
+        tabSwitchWarnings++;
+        console.log('Violation count increased to:', tabSwitchWarnings);
+        
+        // Update display
+        updateViolationDisplay();
+        
+        // Save violation to database
+        saveTabSwitchViolation(violationType);
+        
+        // Show immediate warning
+        showImmediateWarning(violationType);
+        
+        // Check if maximum violations reached
+        if (tabSwitchWarnings >= 3) {
+            console.log('Maximum violations reached, terminating exam');
+            forceExamTermination();
+        }
+    }
+
+    function saveTabSwitchViolation(violationType) {
+        console.log('Saving violation to database:', violationType);
+        
+        const violationData = {
+            email: '<?php echo $email; ?>',
+            name: '<?php echo $name; ?>',
+            violation_type: violationType,
+            violation_count: tabSwitchWarnings,
+            timestamp: new Date().toISOString(),
+            exam_id: '<?php echo @$_GET['eid']; ?>',
+            question_number: '<?php echo @$_GET['n']; ?>'
+        };
+        
+        console.log('Violation data:', violationData);
+        
+        // Use XMLHttpRequest as a more reliable alternative to fetch
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'save_tab_violation.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Accept', 'application/json');
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                console.log('XHR Response status:', xhr.status);
+                console.log('XHR Response text:', xhr.responseText);
+                
+                if (xhr.status === 200) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        console.log('Tab violation recorded successfully:', data);
+                        if (!data.success) {
+                            console.error('Server reported error:', data.message);
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse JSON response:', e);
+                        console.error('Response was:', xhr.responseText);
+                    }
+                } else {
+                    console.error('HTTP error:', xhr.status, xhr.statusText);
+                    console.error('Response:', xhr.responseText);
+                }
+            }
+        };
+        
+        xhr.onerror = function() {
+            console.error('Network error occurred');
+        };
+        
+        try {
+            xhr.send(JSON.stringify(violationData));
+            console.log('Violation data sent via XHR');
+        } catch (error) {
+            console.error('Error sending violation data:', error);
+            
+            // Fallback: try with a simple form POST as last resort
+            console.log('Trying fallback form submission...');
+            saveViolationViaForm(violationType, violationData);
+        }
+    }
+    
+    function saveViolationViaForm(violationType, violationData) {
+        // Create a hidden form and submit it as fallback
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'save_tab_violation.php';
+        form.style.display = 'none';
+        
+        // Add JSON data as a hidden field
+        const jsonField = document.createElement('input');
+        jsonField.type = 'hidden';
+        jsonField.name = 'json_data';
+        jsonField.value = JSON.stringify(violationData);
+        form.appendChild(jsonField);
+        
+        // Add individual fields for compatibility
+        Object.keys(violationData).forEach(key => {
+            const field = document.createElement('input');
+            field.type = 'hidden';
+            field.name = key;
+            field.value = violationData[key];
+            form.appendChild(field);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+        
+        console.log('Fallback form submitted');
+    }
+
+    function showImmediateWarning(violationType) {
+        const warningMessages = [
+            'First Warning: Stay focused on your exam. Tab switching detected.',
+            'Second Warning: Another violation detected. One more violation will terminate your exam.',
+            'Final Warning: Exam will be terminated due to repeated violations.'
+        ];
+        
+        Swal.fire({
+            title: 'Security Violation Detected!',
+            html: `
+                <div class="text-left">
+                    <p class="mb-3"><strong>Violation:</strong> ${violationType}</p>
+                    <p class="mb-3"><strong>Warning ${tabSwitchWarnings}/3:</strong></p>
+                    <p class="${tabSwitchWarnings >= 3 ? 'text-red-600 font-bold' : 'text-orange-600'}">${warningMessages[Math.min(tabSwitchWarnings - 1, 2)]}</p>
+                    ${tabSwitchWarnings >= 2 ? '<p class="text-sm text-gray-500 mt-2">Stay in this tab and focus on your exam.</p>' : ''}
+                </div>
+            `,
+            icon: 'warning',
+            confirmButtonText: 'I Understand',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            customClass: {
+                popup: 'rounded-xl shadow-2xl border border-red-200',
+                confirmButton: 'bg-red-600 hover:bg-red-700'
+            }
+        });
+    }
+
+    function showTabReturnWarning() {
+        if (tabSwitchWarnings > 0) {
+            Swal.fire({
+                title: 'Welcome Back',
+                text: `You have ${tabSwitchWarnings} violation(s). Please focus on your exam to avoid termination.`,
+                icon: 'info',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+    }
+
+    function forceExamTermination() {
+        // Stop all detection
+        disableTabSwitchDetection();
+        
+        Swal.fire({
+            title: 'Exam Terminated',
+            html: `
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                    <p class="text-lg mb-3">Your exam has been terminated due to repeated security violations.</p>
+                    <p class="text-sm text-gray-600">Total violations: ${tabSwitchWarnings}</p>
+                    <p class="text-sm text-gray-600">You will be redirected to the dashboard.</p>
+                </div>
+            `,
+            icon: 'error',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true
+        }).then(() => {
+            // Redirect to dashboard
+            window.location.href = 'account.php?q=1';
+        });
+        
+        // Submit current answers if any and mark exam as terminated
+        submitExamWithViolation();
+    }
+
+    function submitExamWithViolation() {
+        // Get current form if exists
+        const currentForm = document.querySelector('form[action*="update.php"]');
+        if (currentForm) {
+            // Add a hidden field to mark as terminated
+            const terminatedField = document.createElement('input');
+            terminatedField.type = 'hidden';
+            terminatedField.name = 'exam_terminated';
+            terminatedField.value = 'true';
+            currentForm.appendChild(terminatedField);
+            
+            // Submit the form
+            currentForm.submit();
+        } else {
+            // If no form, just redirect
+            window.location.href = 'account.php?q=1';
+        }
+    }
+
+    function disableTabSwitchDetection() {
+        tabSwitchDetectionEnabled = false;
+        isExamActive = false;
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
+    }
+    
+    // Test function for debugging (remove in production)
+    function testTabDetection() {
+        console.log('Test button clicked');
+        recordTabSwitchViolation('Manual test violation');
+        updateViolationDisplay();
+    }
+    
+    function updateViolationDisplay() {
+        const display = document.getElementById('violationCount');
+        if (display) {
+            display.textContent = `Violations: ${tabSwitchWarnings}`;
+        }
+    }
+
     // Face detection functionality
     let faceDetectionInterval;
 
@@ -1126,10 +1632,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Start/stop face detection based on session state
     <?php if ($_SESSION['exam_active']) { ?>
+        console.log('Exam is active - starting monitoring');
         startFaceDetection();
+        enableTabSwitchDetection();
     <?php } else { ?>
+        console.log('Exam is not active');
         stopFaceDetection();
+        disableTabSwitchDetection();
     <?php } ?>
+    
+    // Also check URL parameters for exam state
+    const urlParams = new URLSearchParams(window.location.search);
+    const isQuizStep2 = urlParams.get('q') === 'quiz' && urlParams.get('step') === '2';
+    
+    if (isQuizStep2) {
+        console.log('Quiz step 2 detected from URL - enabling tab monitoring');
+        isExamActive = true;
+        enableTabSwitchDetection();
+    }
 });
 </script>
 

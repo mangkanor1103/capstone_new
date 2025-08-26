@@ -208,6 +208,36 @@ if(count($lines) > 0) {
 
 //quiz start
 if(@$_GET['q']== 'quiz' && @$_GET['step']== 2) {
+// Check if exam was terminated due to violations
+if(isset($_POST['exam_terminated']) && $_POST['exam_terminated'] == 'true') {
+    // Handle exam termination
+    $eid=@$_GET['eid'];
+    $email = $_SESSION['email'];
+    
+    // Mark exam as terminated in history
+    $q=mysqli_query($con,"SELECT * FROM history WHERE eid='$eid' AND email='$email' ");
+    if(mysqli_num_rows($q) > 0) {
+        // Update existing record to mark as terminated
+        $q=mysqli_query($con,"UPDATE `history` SET `terminated`=1, `termination_reason`='Security violations - Tab switching', date=NOW() WHERE email = '$email' AND eid = '$eid'");
+    } else {
+        // Insert new record marked as terminated
+        $q=mysqli_query($con,"INSERT INTO history (email, eid, score, level, sahi, wrong, terminated, termination_reason, date) VALUES('$email','$eid','0','0','0','0','1','Security violations - Tab switching',NOW())");
+    }
+    
+    // Record final violation count
+    $violation_count_query = mysqli_query($con, "SELECT COUNT(*) as count FROM tab_violations WHERE email='$email' AND exam_id='$eid'");
+    $violation_data = mysqli_fetch_assoc($violation_count_query);
+    $total_violations = $violation_data['count'];
+    
+    // Log termination event
+    $termination_log = "INSERT INTO exam_terminations (email, exam_id, termination_reason, violation_count, timestamp) VALUES ('$email', '$eid', 'Tab switching violations', '$total_violations', NOW())";
+    mysqli_query($con, $termination_log);
+    
+    // Redirect to results page with termination notice
+    header("location:account.php?q=result&eid=$eid&terminated=1");
+    exit();
+}
+
 $eid=@$_GET['eid'];
 $sn=@$_GET['n'];
 $total=@$_GET['t'];
