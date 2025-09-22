@@ -402,6 +402,9 @@ session_start();
                 <a class="nav-item <?php if(@$_GET['q']==7) echo 'active'; ?>" href="dash.php?q=7">
                     <i class="fas fa-shield-alt mr-2"></i> Tab Violations
                 </a>
+                <a class="nav-item <?php if(@$_GET['q']==8) echo 'active'; ?>" href="dash.php?q=8">
+                    <i class="fas fa-video mr-2"></i> Live Monitoring
+                </a>
                 <a class="nav-item <?php if(@$_GET['q']==6) echo 'active'; ?>" href="dash.php?q=6">
                     <i class="fas fa-chart-line mr-2"></i> Analytics
                 </a>
@@ -425,6 +428,7 @@ session_start();
                         else if(@$_GET['q']==4) echo "Add Exam";
                         else if(@$_GET['q']==5) echo "Warnings";
                         else if(@$_GET['q']==7) echo "Tab Violations Monitor";
+                        else if(@$_GET['q']==8) echo "Live Monitoring";
                         else if(@$_GET['q']==6) echo "Analytics Dashboard";
                         else echo "Dashboard";
                     ?>

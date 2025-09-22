@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 28, 2025 at 03:01 PM
+-- Generation Time: Sep 22, 2025 at 03:42 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -66,7 +66,7 @@ INSERT INTO `answer` (`qid`, `ansid`) VALUES
 ('558922899ccaa', '55892289aa7cf'),
 ('558923538f48d', '558923539a46c'),
 ('55892353f05c4', '55892354051be'),
-('607336aa8c987', '607336aa961b5'),
+('607336aa8c987', '607336aa961b9'),
 ('607336aacedd1', '607336aadc68e'),
 ('607336ab244aa', '607336ab31664'),
 ('683707626953b', '6837076269b59'),
@@ -88,7 +88,27 @@ INSERT INTO `answer` (`qid`, `ansid`) VALUES
 ('68370762a3e1d', '68370762abcf9'),
 ('68370762af199', '68370762b05c2'),
 ('68370762b2374', '68370762b3046'),
-('68370762b3de7', '68370762b4648');
+('68370762b3de7', '68370762b4648'),
+('68411daa11b67', '68411daa143a8'),
+('689b38922b09d', '689b3892acbdd');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exam_terminations`
+--
+
+CREATE TABLE `exam_terminations` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `exam_id` varchar(50) NOT NULL,
+  `termination_reason` varchar(255) NOT NULL,
+  `violation_count` int(11) DEFAULT 0,
+  `timestamp` datetime NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -113,7 +133,8 @@ CREATE TABLE `feedback` (
 INSERT INTO `feedback` (`id`, `name`, `email`, `subject`, `feedback`, `date`, `time`) VALUES
 ('60730932a3d1b', 'Demo Test', 'test@feedback.com', 'Testing Feedbacks', 'This is a demo text for testing purpose', '2021-04-11', '04:35:30pm'),
 ('607309ab640d8', 'Chris', 'chris@gmail.com', 'Regard System', 'this is a demo text!', '2021-04-11', '04:37:31pm'),
-('60730a627e21f', 'Oliver', 'oliver@gmail.com', 'Bug', 'demo demo', '2021-04-11', '04:40:34pm');
+('60730a627e21f', 'Oliver', 'oliver@gmail.com', 'Bug', 'demo demo', '2021-04-11', '04:40:34pm'),
+('689c7d70b9591', 'rgeg', 'kian1@gmail.com', 'erge', 'egrerg', '2025-08-13', '01:56:32pm');
 
 -- --------------------------------------------------------
 
@@ -128,30 +149,39 @@ CREATE TABLE `history` (
   `level` int(11) NOT NULL,
   `sahi` int(11) NOT NULL,
   `wrong` int(11) NOT NULL,
-  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `terminated` tinyint(1) DEFAULT 0,
+  `termination_reason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `history`
 --
 
-INSERT INTO `history` (`email`, `eid`, `score`, `level`, `sahi`, `wrong`, `date`) VALUES
-('sunnygkp10@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2015-06-23 01:31:26'),
-('sunnygkp10@gmail.com', '558920ff906b8', 4, 2, 2, 0, '2015-06-23 05:32:09'),
-('avantika420@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2015-06-23 06:33:04'),
-('avantika420@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2015-06-23 06:49:39'),
-('mi5@hollywood.com', '5589222f16b93', 4, 2, 2, 0, '2015-06-23 07:12:56'),
-('nik1@gmail.com', '558921841f1ec', 1, 2, 1, 1, '2015-06-23 08:11:50'),
-('clancy@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 05:24:37'),
-('sunnygkp10@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 08:27:21'),
-('doe@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2021-04-11 09:20:17'),
-('james@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2021-04-11 09:26:12'),
-('james@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 09:26:54'),
-('steeve@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2021-04-11 09:44:46'),
-('steeve@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 09:45:20'),
-('steeve@gmail.com', '6073360884420', 6, 3, 3, 0, '2021-04-11 09:50:15'),
-('kianr6644@gmail.com', '558922ec03021', 1, 2, 1, 1, '2025-05-14 08:25:42'),
-('kianr6644@gmail.com', '6073360884420', 2, 3, 2, 1, '2025-05-14 09:10:01');
+INSERT INTO `history` (`email`, `eid`, `score`, `level`, `sahi`, `wrong`, `date`, `terminated`, `termination_reason`) VALUES
+('sunnygkp10@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2015-06-23 01:31:26', 0, NULL),
+('sunnygkp10@gmail.com', '558920ff906b8', 4, 2, 2, 0, '2015-06-23 05:32:09', 0, NULL),
+('avantika420@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2015-06-23 06:33:04', 0, NULL),
+('avantika420@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2015-06-23 06:49:39', 0, NULL),
+('mi5@hollywood.com', '5589222f16b93', 4, 2, 2, 0, '2015-06-23 07:12:56', 0, NULL),
+('nik1@gmail.com', '558921841f1ec', 1, 2, 1, 1, '2015-06-23 08:11:50', 0, NULL),
+('clancy@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 05:24:37', 0, NULL),
+('sunnygkp10@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 08:27:21', 0, NULL),
+('doe@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2021-04-11 09:20:17', 0, NULL),
+('james@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2021-04-11 09:26:12', 0, NULL),
+('james@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 09:26:54', 0, NULL),
+('steeve@gmail.com', '558921841f1ec', 4, 2, 2, 0, '2021-04-11 09:44:46', 0, NULL),
+('steeve@gmail.com', '5589222f16b93', 4, 2, 2, 0, '2021-04-11 09:45:20', 0, NULL),
+('steeve@gmail.com', '6073360884420', 6, 3, 3, 0, '2021-04-11 09:50:15', 0, NULL),
+('kianr6644@gmail.com', '558922ec03021', 1, 2, 1, 1, '2025-05-14 08:25:42', 0, NULL),
+('kianr6644@gmail.com', '6073360884420', 2, 3, 2, 1, '2025-05-14 09:10:01', 0, NULL),
+('rheamelchorQ@gmail.com', '6073360884420', 1, 3, 1, 2, '2025-05-28 13:11:40', 0, NULL),
+('1rheamelchorq@gmail.com', '6073360884420', 0, 3, 0, 3, '2025-06-05 02:05:56', 0, NULL),
+('kianr664@gmail.com', '6073360884420', 0, 3, 0, 3, '2025-06-05 03:08:26', 0, NULL),
+('kianr664@gmail.com', '558922ec03021', 0, 2, 0, 2, '2025-06-05 06:15:44', 0, NULL),
+('kianr664@gmail.com', '5589222f16b93', 0, 1, 0, 1, '2025-08-11 12:19:57', 0, NULL),
+('kianr664@gmail.com', '558921841f1ec', 1, 2, 1, 1, '2025-08-11 12:31:02', 0, NULL),
+('kianr664@gmail.com', '6837075900ce6', 0, 1, 0, 1, '2025-08-13 11:39:40', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -293,7 +323,15 @@ INSERT INTO `options` (`qid`, `option`, `optionid`) VALUES
 ('68370762b3de7', 'System software', '68370762b4224'),
 ('68370762b3de7', 'Utility software', '68370762b4648'),
 ('68370762b3de7', 'Application software', '68370762b4abd'),
-('68370762b3de7', 'Programming software', '68370762b575d');
+('68370762b3de7', 'Programming software', '68370762b575d'),
+('68411daa11b67', 'xegx', '68411daa143a8'),
+('68411daa11b67', 'xgxxegx', '68411daa143ab'),
+('68411daa11b67', 'exgx', '68411daa143ac'),
+('68411daa11b67', 'xge', '68411daa143ad'),
+('689b38922b09d', 'dvs', '689b3892acbc6'),
+('689b38922b09d', 'sdvs', '689b3892acbdd'),
+('689b38922b09d', 'dsvs', '689b3892acbdf'),
+('689b38922b09d', 'sdvsv', '689b3892acbe1');
 
 -- --------------------------------------------------------
 
@@ -345,7 +383,7 @@ INSERT INTO `questions` (`eid`, `qid`, `qns`, `choice`, `sn`) VALUES
 ('558920ff906b8', 'q18', 'Which of these is used to design web pages?', 4, 18),
 ('558920ff906b8', 'q19', 'What is phishing?', 4, 19),
 ('558920ff906b8', 'q20', 'What kind of software is an antivirus?', 4, 20),
-('6837075900ce6', '683707626953b', 'What does CPU stand for?', 4, 1),
+('6837075900ce6', '683707626953b', 'What does UPC stand for?', 4, 1),
 ('6837075900ce6', '683707626d99f', 'Which of the following is NOT an input device?', 4, 2),
 ('6837075900ce6', '6837076272986', 'What is the function of an operating system?', 4, 3),
 ('6837075900ce6', '6837076276e60', 'What does HTML stand for?', 4, 4),
@@ -364,7 +402,9 @@ INSERT INTO `questions` (`eid`, `qid`, `qns`, `choice`, `sn`) VALUES
 ('6837075900ce6', '68370762a3e1d', 'What does BIOS stand for?', 4, 17),
 ('6837075900ce6', '68370762af199', 'Which of these is used to design web pages?', 4, 18),
 ('6837075900ce6', '68370762b2374', 'What is phishing?', 4, 19),
-('6837075900ce6', '68370762b3de7', 'What kind of software is an antivirus?', 4, 20);
+('6837075900ce6', '68370762b3de7', 'What kind of software is an antivirus?', 4, 20),
+('6073360884420', '68411daa11b67', 'segs', 4, 1),
+('684155c7c4bfd', '689b38922b09d', 'dvsvv', 4, 1);
 
 -- --------------------------------------------------------
 
@@ -382,20 +422,22 @@ CREATE TABLE `quiz` (
   `intro` text NOT NULL,
   `tag` varchar(100) NOT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `allow_restart` tinyint(1) NOT NULL DEFAULT 0
+  `allow_restart` tinyint(1) NOT NULL DEFAULT 0,
+  `allowed_sections` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `quiz`
 --
 
-INSERT INTO `quiz` (`eid`, `title`, `sahi`, `wrong`, `total`, `time`, `intro`, `tag`, `date`, `allow_restart`) VALUES
-('558920ff906b8', 'Linux : File Managment', 2, 1, 2, 5, '', 'linux', '2015-06-23 01:03:59', 0),
-('558921841f1ec', 'Php Coding', 2, 1, 2, 5, '', 'PHP', '2015-06-23 01:06:12', 0),
-('5589222f16b93', 'C++ Coding', 2, 1, 2, 5, '', 'c++', '2015-06-23 01:09:03', 0),
-('558922ec03021', 'Networking', 2, 1, 2, 5, '', 'networking', '2015-06-23 01:12:12', 0),
-('6073360884420', 'Nodejs Term', 2, 2, 3, 2, 'Basic test for nodejs terms', 'nodejs', '2025-05-14 09:26:00', 1),
-('6837075900ce6', 'It', 1, 1, 20, 60, 'for it', 'ewdcew', '2025-05-28 12:53:45', 0);
+INSERT INTO `quiz` (`eid`, `title`, `sahi`, `wrong`, `total`, `time`, `intro`, `tag`, `date`, `allow_restart`, `allowed_sections`) VALUES
+('558920ff906b8', 'Linux : File Managment', 2, 1, 2, 5, '', 'linux', '2015-06-23 01:03:59', 0, NULL),
+('558921841f1ec', 'Php Coding', 2, 1, 2, 5, '', 'PHP', '2015-06-23 01:06:12', 0, NULL),
+('5589222f16b93', 'C++ Coding', 2, 1, 2, 5, '', 'c++', '2015-06-23 01:09:03', 0, NULL),
+('558922ec03021', 'Networking', 2, 1, 2, 5, '', 'networking', '2015-06-23 01:12:12', 0, NULL),
+('6073360884420', 'Nodejs Term', 2, 2, 3, 2, 'Basic test for nodejs terms', 'nodejs', '2025-06-05 06:12:52', 0, '[\"Grade 7 - Section A\",\"Grade 7 - Section B\",\"Grade 8 - Section A\",\"Grade 8 - Section B\"]'),
+('6837075900ce6', 'It', 1, 1, 20, 60, 'for it', 'ewdcew', '2025-08-12 12:53:26', 1, ''),
+('684155c7c4bfd', 'Entrance Exam', 1, 1, 5, 60, 'sasasa', 'IT', '2025-06-05 08:31:03', 0, '');
 
 -- --------------------------------------------------------
 
@@ -414,15 +456,71 @@ CREATE TABLE `rank` (
 --
 
 INSERT INTO `rank` (`email`, `score`, `time`) VALUES
-('sunnygkp10@gmail.com', 5, '2021-04-11 08:27:17'),
-('avantika420@gmail.com', 8, '2015-06-23 06:49:39'),
-('mi5@hollywood.com', 4, '2015-06-23 07:12:56'),
-('nik1@gmail.com', 1, '2015-06-23 08:11:50'),
-('doe@gmail.com', 4, '2021-04-11 09:20:17'),
-('clancy@gmail.com', 4, '2021-04-11 05:24:37'),
-('james@gmail.com', 14, '2021-04-11 09:32:53'),
-('steeve@gmail.com', 14, '2021-04-11 09:50:15'),
-('kianr6644@gmail.com', 4, '2025-05-14 09:41:06');
+('maria.santos@email.com', 495, '2025-06-05 03:18:24'),
+('juan.cruz@email.com', 478, '2025-06-05 03:18:24'),
+('ana.garcia@email.com', 465, '2025-06-05 03:18:24'),
+('pedro.lopez@email.com', 452, '2025-06-05 03:18:25'),
+('lisa.reyes@email.com', 441, '2025-06-05 03:18:25'),
+('carlos.mendoza@email.com', 435, '2025-06-05 03:18:25'),
+('sofia.martinez@email.com', 428, '2025-06-05 03:18:25'),
+('miguel.torres@email.com', 415, '2025-06-05 03:18:25'),
+('elena.rivera@email.com', 402, '2025-06-05 03:18:25'),
+('jose.hernandez@email.com', 398, '2025-06-05 03:18:25'),
+('lucia.flores@email.com', 385, '2025-06-05 03:18:25'),
+('diego.morales@email.com', 372, '2025-06-05 03:18:25'),
+('kianr664@gmail.com', -5, '2025-08-12 12:53:47');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tab_violations`
+--
+
+CREATE TABLE `tab_violations` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `violation_type` varchar(255) NOT NULL,
+  `violation_count` int(11) DEFAULT 1,
+  `timestamp` datetime NOT NULL,
+  `exam_id` varchar(50) DEFAULT NULL,
+  `question_number` int(11) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `status` enum('active','resolved','dismissed') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tab_violations`
+--
+
+INSERT INTO `tab_violations` (`id`, `email`, `name`, `violation_type`, `violation_count`, `timestamp`, `exam_id`, `question_number`, `ip_address`, `user_agent`, `status`, `created_at`) VALUES
+(1, 'admin@example.com', 'Sample Admin', 'Tab switched or window minimized', 1, '2025-08-26 13:38:10', 'sample_exam_01', 1, NULL, NULL, 'active', '2025-08-26 05:38:10'),
+(2, 'admin@example.com', 'Sample Admin', 'Context menu attempted', 2, '2025-08-26 13:38:10', 'sample_exam_01', 1, NULL, NULL, 'active', '2025-08-26 05:38:10'),
+(3, 'admin@example.com', 'Sample Admin', 'Developer tools attempt (F12)', 3, '2025-08-26 13:38:10', 'sample_exam_01', 2, NULL, NULL, 'active', '2025-08-26 05:38:10'),
+(4, 'kianr664@gmail.com', 'Test User', 'tab_switch', 1, '2025-08-26 06:08:11', NULL, NULL, NULL, NULL, 'active', '2025-08-26 06:08:11'),
+(5, 'kianr664@gmail.com', 'Test User', 'tab_switch', 1, '2025-08-26 06:08:17', NULL, NULL, NULL, NULL, 'active', '2025-08-26 06:08:17'),
+(6, 'kianr664@gmail.com', 'Test User', 'tab_switch', 1, '2025-08-26 06:08:19', NULL, NULL, NULL, NULL, 'active', '2025-08-26 06:08:19'),
+(7, 'kianr664@gmail.com', 'Kian A. Rodriguez', 'Window lost focus', 1, '2025-08-26 06:13:33', '684155c7c4bfd', 1, NULL, NULL, 'active', '2025-08-26 06:13:33'),
+(8, 'kianr664@gmail.com', 'Kian A. Rodriguez', 'Tab switched or window minimized', 2, '2025-08-26 06:13:33', '684155c7c4bfd', 1, NULL, NULL, 'active', '2025-08-26 06:13:33');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `terminated_exams_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `terminated_exams_view` (
+`email` varchar(50)
+,`exam_id` text
+,`exam_title` varchar(100)
+,`score` int(11)
+,`questions_completed` int(11)
+,`termination_reason` varchar(255)
+,`termination_date` timestamp
+,`violation_count` int(11)
+);
 
 -- --------------------------------------------------------
 
@@ -447,7 +545,11 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`name`, `gender`, `college`, `email`, `mob`, `password`, `photo`, `status`) VALUES
 ('Kian A. Rodriguez', 'M', '3F1', 'kianr6644@gmail.com', 9234567654, '$2y$10$hL7pA1pnRbjjGb.SNI1FE.wdDFboGFSEUiWP1kd9z0Vjp7p.9MR3K', 'uploads/user_682480786960b.png', 1),
-('Rhea M. Melchor', 'F', '3F1', 'rheamelchorq@gmail.com', 9234567654, '$2y$10$M1TAAfoyshPULjjoduy1e.l2YRwfpNHblGAa.F6sSgSnOccYLTVpu', 'uploads/user_683706d10580f.png', 0);
+('Rhea M. Melchor', 'F', '3F1', 'rheamelchorq@gmail.com', 9234567654, '$2y$10$M1TAAfoyshPULjjoduy1e.l2YRwfpNHblGAa.F6sSgSnOccYLTVpu', 'uploads/user_683706d10580f.png', 1),
+('Rhea M. Melchor', 'F', '3F1', '1rheamelchorq@gmail.com', 9234567654, '$2y$10$Cwbfr9b5ubbBTGVXed0q0uXV6syuuGia8h2.UA/xz/rkGGe.uWjo2', 'uploads/user_6840faee95bef.png', 1),
+('Kian A. Rodriguez', 'M', 'Grade 11 - Section A', 'kianr664@gmail.com', 9234567654, '$2y$10$gy6rsosW3v/AR3nBm7xJfOMGjyT4nh3nYG..QuCY9OjUENTlyZSzG', 'uploads/user_6841008dae71a.png', 1),
+('Kyrelle Milanes', 'F', 'Grade 11 - Section B', 'ky@gmail.com', 325252, '$2y$10$OU5XI/9KaHWx037QpPeL.O0bhyQrewuZdvrJgZmM.eQBHROHEwPzW', 'uploads/user_68414634a6f71.png', 1),
+('Kyrelle Milanes', 'F', 'Grade 7 - Section A', 'ky1@gmail.com', 325252, '$2y$10$yly3IaJb7iXUqP8tO3u.ZekB89C..Zm.YLPcmaFecn5i8utMewsEG', 'uploads/user_684153dc24105.png', 0);
 
 -- --------------------------------------------------------
 
@@ -461,6 +563,23 @@ CREATE TABLE `user_exam_settings` (
   `eid` varchar(50) NOT NULL,
   `allow_restart` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `violations`
+--
+
+CREATE TABLE `violations` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `eid` int(11) NOT NULL DEFAULT 0,
+  `violation_type` varchar(50) NOT NULL,
+  `violation_details` text DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -539,7 +658,144 @@ INSERT INTO `warning` (`id`, `timestamp`, `email`) VALUES
 (0, '2025-05-28 14:55:15', 'rheamelchorq@gmail.com'),
 (0, '2025-05-28 14:55:24', 'rheamelchorq@gmail.com'),
 (0, '2025-05-28 14:55:30', 'rheamelchorq@gmail.com'),
-(0, '2025-05-28 14:55:37', 'rheamelchorq@gmail.com');
+(0, '2025-05-28 14:55:37', 'rheamelchorq@gmail.com'),
+(0, '2025-06-05 04:05:36', '1rheamelchorq@gmail.com'),
+(0, '2025-06-05 10:23:42', 'ky1@gmail.com'),
+(0, '2025-06-05 10:24:29', 'ky1@gmail.com'),
+(0, '2025-06-05 10:24:52', 'ky1@gmail.com'),
+(0, '2025-07-25 16:01:21', 'kianr664@gmail.com'),
+(0, '2025-07-25 17:39:33', 'kianr664@gmail.com'),
+(0, '2025-07-25 17:40:06', 'kianr664@gmail.com'),
+(0, '2025-08-11 14:23:04', 'kianr664@gmail.com'),
+(0, '2025-08-11 14:23:05', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:02:08', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:02:42', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:09:34', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:09:46', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:14:23', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:20:16', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:22:14', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:26:43', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:29:03', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:34:59', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:38:54', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:45:10', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:45:42', 'kianr664@gmail.com'),
+(0, '2025-08-12 15:53:24', 'kianr664@gmail.com'),
+(0, '2025-08-13 13:39:03', 'kianr664@gmail.com'),
+(0, '2025-08-13 13:39:04', 'kianr664@gmail.com'),
+(0, '2025-08-13 13:39:22', 'kianr664@gmail.com'),
+(0, '2025-08-26 06:08:11', 'kianr664@gmail.com'),
+(0, '2025-08-26 06:08:17', 'kianr664@gmail.com'),
+(0, '2025-08-26 06:08:19', 'kianr664@gmail.com'),
+(0, '2025-08-26 06:13:33', 'kianr664@gmail.com'),
+(0, '2025-08-26 06:13:33', 'kianr664@gmail.com');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `warning_images`
+--
+
+CREATE TABLE `warning_images` (
+  `id` int(11) NOT NULL,
+  `warning_id` int(11) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `image_data` longblob DEFAULT NULL,
+  `image_filename` varchar(255) DEFAULT NULL,
+  `archive_path` varchar(500) DEFAULT NULL,
+  `violation_count` int(11) DEFAULT 0,
+  `violation_level` enum('MINOR','MODERATE','MAJOR','SEVERE','CRITICAL') DEFAULT 'MINOR',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `terminated_exams_view`
+--
+DROP TABLE IF EXISTS `terminated_exams_view`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `terminated_exams_view`  AS SELECT `h`.`email` AS `email`, `h`.`eid` AS `exam_id`, `q`.`title` AS `exam_title`, `h`.`score` AS `score`, `h`.`level` AS `questions_completed`, `h`.`termination_reason` AS `termination_reason`, `h`.`date` AS `termination_date`, `et`.`violation_count` AS `violation_count` FROM ((`history` `h` left join `quiz` `q` on(`h`.`eid` = `q`.`eid`)) left join `exam_terminations` `et` on(`h`.`email` = `et`.`email` and `h`.`eid` = `et`.`exam_id`)) WHERE `h`.`terminated` = 1 ORDER BY `h`.`date` DESC ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `exam_terminations`
+--
+ALTER TABLE `exam_terminations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `email_index` (`email`),
+  ADD KEY `exam_id_index` (`exam_id`),
+  ADD KEY `timestamp_index` (`timestamp`);
+
+--
+-- Indexes for table `history`
+--
+ALTER TABLE `history`
+  ADD KEY `terminated_exams_idx` (`terminated`,`email`,`date`);
+
+--
+-- Indexes for table `tab_violations`
+--
+ALTER TABLE `tab_violations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `email_index` (`email`),
+  ADD KEY `timestamp_index` (`timestamp`),
+  ADD KEY `exam_id_index` (`exam_id`),
+  ADD KEY `violation_type_index` (`violation_type`),
+  ADD KEY `email_timestamp_idx` (`email`,`timestamp`),
+  ADD KEY `exam_violations_idx` (`exam_id`,`email`);
+
+--
+-- Indexes for table `violations`
+--
+ALTER TABLE `violations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `email` (`email`),
+  ADD KEY `eid` (`eid`),
+  ADD KEY `violation_type` (`violation_type`),
+  ADD KEY `timestamp` (`timestamp`);
+
+--
+-- Indexes for table `warning_images`
+--
+ALTER TABLE `warning_images`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_warning_id` (`warning_id`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_violation_level` (`violation_level`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `exam_terminations`
+--
+ALTER TABLE `exam_terminations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tab_violations`
+--
+ALTER TABLE `tab_violations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `violations`
+--
+ALTER TABLE `violations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `warning_images`
+--
+ALTER TABLE `warning_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
